@@ -52,7 +52,7 @@ To get a local copy up and running, follow these simple steps.
 
 1. Clone the repository
    ```sh
-   git clone https://github.com/your_username_/Project-Name.git
+   git clone https://github.com/Coding-with-Efehan/CWE.git
    ```
 2. Configure the `appsettings.json` file found in the CWE directory
 
