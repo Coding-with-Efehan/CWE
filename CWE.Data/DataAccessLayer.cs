@@ -138,7 +138,7 @@
         /// <summary>
         /// Checks if the tag name provided exists in the database.
         /// </summary>
-        /// <param name="tagName">The name of the tag to fetch..</param>
+        /// <param name="tagName">The name of the tag to get.</param>
         /// <returns>A <see cref="Tag"/> depending on if the tag exists in the database.</returns>
         public async Task<Tag> GetTag(string tagName)
         {
