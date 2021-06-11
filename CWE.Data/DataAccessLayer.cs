@@ -140,7 +140,7 @@
         /// </summary>
         /// <param name="tagName">The name of the tag to fetch..</param>
         /// <returns>A <see cref="Tag"/> depending on if the tag exists in the database.</returns>
-        public async Task<Tag> FetchTagAsync(string tagName)
+        public async Task<Tag> GetTag(string tagName)
         {
             var tag = await this.dbContext.Tags
                 .Where(x => x.Name == tagName)
@@ -161,7 +161,7 @@
         /// <param name="ownerId">The owner's user ID of the tag.</param>
         /// <param name="content">The content that the tag holds.</param>
         /// <returns><see cref="void"/>.</returns>
-        public async Task CreateTagAsync(string name, ulong ownerId, string content)
+        public async Task CreateTag(string name, ulong ownerId, string content)
         {
             var tag = await this.dbContext.Tags
                 .Where(x => x.Name == name)
@@ -185,7 +185,7 @@
         /// </summary>
         /// <param name="tagName">The name of the tag to delete.</param>
         /// <returns><see cref="void"/>.</returns>
-        public async Task DeleteTagAsync(string tagName)
+        public async Task DeleteTag(string tagName)
         {
             var tag = await this.dbContext.Tags
                 .Where(x => x.Name == tagName)
@@ -207,7 +207,7 @@
         /// <param name="executorId">The user who is attempting to modify the tag.</param>
         /// <param name="newContent">The content that the new tag should hold.</param>
         /// <returns><see cref="void"/>.</returns>
-        public async Task EditTagContentAsync(string tagName, ulong executorId, string newContent)
+        public async Task EditTagContent(string tagName, ulong executorId, string newContent)
         {
             var tag = await this.dbContext.Tags
                 .Where(x => x.Name == tagName)
@@ -233,7 +233,7 @@
         /// <param name="executorId">The person attempting to transfer ownership of the tag.</param>
         /// <param name="newOwnerId">The new owner of the tag's ID.</param>
         /// <returns><see cref="void"/>.</returns>
-        public async Task TransferTagOwnershipAsync(string tagName, ulong executorId, ulong newOwnerId)
+        public async Task TransferTagOwnership(string tagName, ulong executorId, ulong newOwnerId)
         {
             var tag = await this.dbContext.Tags
                 .Where(x => x.Name == tagName)

@@ -243,7 +243,7 @@
         [Command("tag")]
         public async Task ExecuteTag(string tagName)
         {
-            var tag = await this.DataAccessLayer.FetchTagAsync(tagName);
+            var tag = await this.DataAccessLayer.GetTag(tagName);
             await this.ReplyAsync(tag.Content);
         }
 
@@ -257,13 +257,13 @@
         [RequireTagAuthoriazation]
         public async Task CreateTag(string tagName, [Remainder] string content)
         {
-            var tag = await this.DataAccessLayer.FetchTagAsync(tagName);
+            var tag = await this.DataAccessLayer.GetTag(tagName);
             if (tag != null)
             {
                 throw new ArgumentException("The tag provided already exists, so I can't create one with the matching name.");
             }
 
-            await this.DataAccessLayer.CreateTagAsync(tagName, this.Context.User.Id, content);
+            await this.DataAccessLayer.CreateTag(tagName, this.Context.User.Id, content);
         }
 
         /// <summary>
@@ -277,7 +277,7 @@
         public async Task TranserTag(string tagName, ulong newOwnerId)
         {
             // The method already handles verification, so no need to check here.
-            await this.DataAccessLayer.TransferTagOwnershipAsync(tagName, this.Context.User.Id, newOwnerId);
+            await this.DataAccessLayer.TransferTagOwnership(tagName, this.Context.User.Id, newOwnerId);
         }
 
         /// <summary>
@@ -290,7 +290,7 @@
         [RequireTagAuthoriazation]
         public async Task EditTag(string tagName, [Remainder] string newContent)
         {
-            await this.DataAccessLayer.EditTagContentAsync(tagName, this.Context.User.Id, newContent);
+            await this.DataAccessLayer.EditTagContent(tagName, this.Context.User.Id, newContent);
         }
     }
 }
