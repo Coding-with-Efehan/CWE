@@ -285,7 +285,7 @@
         /// </summary>
         /// <param name="tagName">The tag to edit.</param>
         /// <param name="newContent">The content that should be put in place of the old content.</param>
-        /// <returns>Transfership of a tag<see cref="Task"/>.</returns>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         [Command("tag edit")]
         [RequireTagAuthoriazation]
         public async Task EditTag(string tagName, [Remainder] string newContent)
