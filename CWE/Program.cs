@@ -5,10 +5,10 @@
     using System.Threading.Tasks;
     using CWE.Data;
     using CWE.Data.Context;
+    using CWE.Interactive;
     using CWE.Services;
     using Discord;
     using Discord.Addons.Hosting;
-    using Discord.Addons.Interactive;
     using Discord.WebSocket;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
