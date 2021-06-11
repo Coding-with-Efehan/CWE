@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Text;
     using System.Threading.Tasks;
     using CWE.Common;
     using CWE.Data.Models;
@@ -254,7 +255,7 @@
         /// <param name="content">The content that the tag should hold.</param>
         /// <returns>The creation of a tag, <see cref="Task"/>.</returns>
         [Command("tag create")]
-        [RequireTagAuthoriazation]
+        [RequirePromoted]
         public async Task CreateTag(string tagName, [Remainder] string content)
         {
             var tag = await this.DataAccessLayer.GetTag(tagName);
@@ -273,7 +274,7 @@
         /// <param name="newOwnerId">The new owner's ID value.</param>
         /// <returns>The ownership action of transering a tag. <see cref="Task"/>.</returns>
         [Command("tag transfer")]
-        [RequireTagAuthoriazation]
+        [RequirePromoted]
         public async Task TranserTag(string tagName, ulong newOwnerId)
         {
             // The method already handles verification, so no need to check here.
@@ -287,10 +288,33 @@
         /// <param name="newContent">The content that should be put in place of the old content.</param>
         /// <returns>Transfership of a tag<see cref="Task"/>.</returns>
         [Command("tag edit")]
-        [RequireTagAuthoriazation]
+        [RequirePromoted]
         public async Task EditTag(string tagName, [Remainder] string newContent)
         {
             await this.DataAccessLayer.EditTagContent(tagName, this.Context.User.Id, newContent);
+        }
+
+        /// <summary>
+        /// The command used to return a list of currently existing tags.
+        /// </summary>
+        /// <returns>A list of tags in the form of an embed.</returns>
+        [Command("tags")]
+        public async Task GetTags()
+        {
+            var builder = new StringBuilder();
+            var tags = await this.DataAccessLayer.GetTags(); // We do this here so we can access it later in the embed.
+            foreach (var tag in tags)
+            {
+                builder.Append($"{tag.Name}, ");
+            }
+
+            var embed = new EmbedBuilder()
+                .WithTitle($"Tags ({tags.Count()})")
+                .WithDescription(builder.ToString())
+                .WithColor(Colors.Discord)
+                .WithFooter($"Use \"{this.Configuration.GetValue<string>("Prefix")}tag <TagName> \" to use a tag.")
+                .Build();
+            await this.ReplyAsync(embed: embed);
         }
     }
 }

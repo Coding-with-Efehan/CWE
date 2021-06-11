@@ -12,9 +12,9 @@
     using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
-    /// Attribute used to check if the user is able to create tags.
+    /// Attribute used to check if the user is able to manage tags.
     /// </summary>
-    public class RequireTagAuthoriazation : PreconditionAttribute
+    public class RequirePromoted : PreconditionAttribute
     {
         /// <summary>
         /// Checks if the attribute will pass or fail.

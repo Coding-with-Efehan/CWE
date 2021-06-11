@@ -144,7 +144,7 @@
         {
             var tag = await this.dbContext.Tags
                 .Where(x => x.Name == tagName)
-                .SingleOrDefaultAsync();
+                .FirstOrDefaultAsync();
 
             if (tag == null)
             {
@@ -152,6 +152,16 @@
             }
 
             return tag;
+        }
+
+        /// <summary>
+        /// Gets a list of tags.
+        /// </summary>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        public async Task<IEnumerable<Tag>> GetTags()
+        {
+            return await this.dbContext.Tags
+                .ToListAsync();
         }
 
         /// <summary>
@@ -189,7 +199,7 @@
         {
             var tag = await this.dbContext.Tags
                 .Where(x => x.Name == tagName)
-                .SingleOrDefaultAsync();
+                .FirstOrDefaultAsync();
 
             if (tag == null)
             {
@@ -211,7 +221,7 @@
         {
             var tag = await this.dbContext.Tags
                 .Where(x => x.Name == tagName)
-                .SingleOrDefaultAsync();
+                .FirstOrDefaultAsync();
             if (tag == null)
             {
                 throw new ArgumentException("The tag provided does not match any currently in the database.");
@@ -237,7 +247,7 @@
         {
             var tag = await this.dbContext.Tags
                 .Where(x => x.Name == tagName)
-                .SingleOrDefaultAsync();
+                .FirstOrDefaultAsync();
             if (tag == null)
             {
                 throw new ArgumentException("The tag provided does not match any inside the database.");
