@@ -234,5 +234,63 @@
                 await this.Context.Channel.SendMessageAsync(embed: error);
             }
         }
+
+        /// <summary>
+        /// Command used to call a tag.
+        /// </summary>
+        /// <param name="tagName">The tag to execute.</param>
+        /// <returns>The execution of a tag, <see cref="Task"/>.</returns>
+        [Command("tag")]
+        public async Task ExecuteTag(string tagName)
+        {
+            var tag = await this.DataAccessLayer.FetchTagAsync(tagName);
+            await this.ReplyAsync(tag.Content);
+        }
+
+        /// <summary>
+        /// Command used to create a tag.
+        /// </summary>
+        /// <param name="tagName">The tag's name.</param>
+        /// <param name="content">The content that the tag should hold.</param>
+        /// <returns>The creation of a tag, <see cref="Task"/>.</returns>
+        [Command("tag create")]
+        [RequireTagAuthoriazation]
+        public async Task CreateTag(string tagName, [Remainder] string content)
+        {
+            var tag = await this.DataAccessLayer.FetchTagAsync(tagName);
+            if (tag != null)
+            {
+                throw new ArgumentException("The tag provided already exists, so I can't create one with the matching name.");
+            }
+
+            await this.DataAccessLayer.CreateTagAsync(tagName, this.Context.User.Id, content);
+        }
+
+        /// <summary>
+        /// Command used to transfer ownership of a tag.
+        /// </summary>
+        /// <param name="tagName">The name of the tag to transfer.</param>
+        /// <param name="newOwnerId">The new owner's ID value.</param>
+        /// <returns>The ownership action of transering a tag. <see cref="Task"/>.</returns>
+        [Command("tag transfer")]
+        [RequireTagAuthoriazation]
+        public async Task TranserTag(string tagName, ulong newOwnerId)
+        {
+            // The method already handles verification, so no need to check here.
+            await this.DataAccessLayer.TransferTagOwnershipAsync(tagName, this.Context.User.Id, newOwnerId);
+        }
+
+        /// <summary>
+        /// The command used to edit a currently existing tag's response.
+        /// </summary>
+        /// <param name="tagName">The tag to edit.</param>
+        /// <param name="newContent">The content that should be put in place of the old content.</param>
+        /// <returns>Transfership of a tag<see cref="Task"/>.</returns>
+        [Command("tag edit")]
+        [RequireTagAuthoriazation]
+        public async Task EditTag(string tagName, [Remainder] string newContent)
+        {
+            await this.DataAccessLayer.EditTagContentAsync(tagName, this.Context.User.Id, newContent);
+        }
     }
 }

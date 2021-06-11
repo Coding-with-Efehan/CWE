@@ -1,6 +1,8 @@
 ﻿namespace CWE.Data
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using CWE.Data.Context;
     using CWE.Data.Models;
@@ -131,6 +133,123 @@
         {
             return await this.dbContext.Requests
                 .ToListAsync();
+        }
+
+        /// <summary>
+        /// Checks if the tag name provided exists in the database.
+        /// </summary>
+        /// <param name="tagName">The name of the tag to fetch..</param>
+        /// <returns>A <see cref="Tag"/> depending on if the tag exists in the database.</returns>
+        public async Task<Tag> FetchTagAsync(string tagName)
+        {
+            var tag = await this.dbContext.Tags
+                .Where(x => x.Name == tagName)
+                .SingleOrDefaultAsync();
+
+            if (tag == null)
+            {
+                throw new ArgumentException("The name provided does not match an existing tag in the database.");
+            }
+
+            return tag;
+        }
+
+        /// <summary>
+        /// Creates a tag.
+        /// </summary>
+        /// <param name="name">The name that the tag should have.</param>
+        /// <param name="ownerId">The owner's user ID of the tag.</param>
+        /// <param name="content">The content that the tag holds.</param>
+        /// <returns><see cref="void"/>.</returns>
+        public async Task CreateTagAsync(string name, ulong ownerId, string content)
+        {
+            var tag = await this.dbContext.Tags
+                .Where(x => x.Name == name)
+                .AnyAsync();
+            if (tag)
+            {
+                throw new Exception("A tag with this name already exists.");
+            }
+
+            this.dbContext.Tags.Add(new Tag
+            {
+                Name = name,
+                OwnerId = ownerId,
+                Content = content,
+            });
+            await this.dbContext.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Deletes a tag from the database.
+        /// </summary>
+        /// <param name="tagName">The name of the tag to delete.</param>
+        /// <returns><see cref="void"/>.</returns>
+        public async Task DeleteTagAsync(string tagName)
+        {
+            var tag = await this.dbContext.Tags
+                .Where(x => x.Name == tagName)
+                .SingleOrDefaultAsync();
+
+            if (tag == null)
+            {
+                throw new ArgumentException("The tag provided was not found in the database.");
+            }
+
+            this.dbContext.Tags.Remove(tag);
+            await this.dbContext.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Edits the content of a tag, and modifies it to the new content.
+        /// </summary>
+        /// <param name="tagName">The tag to edit.</param>
+        /// <param name="executorId">The user who is attempting to modify the tag.</param>
+        /// <param name="newContent">The content that the new tag should hold.</param>
+        /// <returns><see cref="void"/>.</returns>
+        public async Task EditTagContentAsync(string tagName, ulong executorId, string newContent)
+        {
+            var tag = await this.dbContext.Tags
+                .Where(x => x.Name == tagName)
+                .SingleOrDefaultAsync();
+            if (tag == null)
+            {
+                throw new ArgumentException("The tag provided does not match any currently in the database.");
+            }
+
+            if (tag.OwnerId != executorId)
+            {
+                throw new InvalidOperationException("You cannot modify a tag that you do not own.");
+            }
+
+            tag.Content = newContent;
+            await this.dbContext.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Transfers the ownership of the current tag to a new specified owner.
+        /// </summary>
+        /// <param name="tagName">The name of the tag to transfer.</param>
+        /// <param name="executorId">The person attempting to transfer ownership of the tag.</param>
+        /// <param name="newOwnerId">The new owner of the tag's ID.</param>
+        /// <returns><see cref="void"/>.</returns>
+        public async Task TransferTagOwnershipAsync(string tagName, ulong executorId, ulong newOwnerId)
+        {
+            var tag = await this.dbContext.Tags
+                .Where(x => x.Name == tagName)
+                .SingleOrDefaultAsync();
+            if (tag == null)
+            {
+                throw new ArgumentException("The tag provided does not match any inside the database.");
+            }
+
+            if (tag.OwnerId != executorId)
+            {
+                throw new InvalidOperationException("You do not own this tag, so I cannot transfer ownership.");
+            }
+
+            tag.OwnerId = newOwnerId;
+            await this.dbContext.SaveChangesAsync();
         }
     }
 }
