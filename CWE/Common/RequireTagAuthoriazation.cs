@@ -5,8 +5,11 @@
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
+    using CWE.Data;
     using Discord.Commands;
     using Discord.WebSocket;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
     /// Attribute used to check if the user is able to create tags.
@@ -24,8 +27,11 @@
         {
             if (context.User is SocketGuildUser user)
             {
-                var regularRole = context.Guild.Roles.FirstOrDefault(x => x.Name == "Regular"); // Change this to whatever you like.
-                var associateRole = context.Guild.Roles.FirstOrDefault(x => x.Name == "Associate"); // Change this to whatever you like.
+                var regularRoleId = services.GetRequiredService<IConfiguration>().GetSection("Roles").GetValue<ulong>("Regular");
+                var associateRoleId = services.GetRequiredService<IConfiguration>().GetSection("Roles").GetValue<ulong>("Associate");
+
+                var regularRole = context.Guild.GetRole(regularRoleId);
+                var associateRole = context.Guild.GetRole(associateRoleId);
                 if (user.Roles.Contains(regularRole) || user.Roles.Contains(associateRole))
                 {
                     return Task.FromResult(PreconditionResult.FromSuccess());
