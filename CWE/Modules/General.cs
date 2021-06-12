@@ -296,6 +296,13 @@
                         return;
                     }
 
+                    if (!this.Context.User.IsPromoted())
+                    {
+                        var embed = Embeds.GetErrorEmbed("Access denied", "You need to be a regular, associate or administrator in order to create tags.");
+                        await this.Context.Channel.SendMessageAsync(embed: embed);
+                        return;
+                    }
+
                     await this.DataAccessLayer.CreateTag(arguments[1], this.Context.User.Id, string.Join(" ", arguments.Skip(2)));
                     var created = Embeds.GetSuccessEmbed("Tag created", $"The tag has been created. You can view it by using `{this.Configuration.GetValue<string>("Prefix")}tag {arguments[1]}`.");
                     await this.Context.Channel.SendMessageAsync(embed: created);
