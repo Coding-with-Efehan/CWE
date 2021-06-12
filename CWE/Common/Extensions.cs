@@ -39,10 +39,10 @@
                     !socketGuildUser.Roles.Contains(associateRole) &&
                     !socketGuildUser.GuildPermissions.Administrator)
                 {
-                    return true;
+                    return false;
                 }
 
-                return false;
+                return true;
             }
             catch
             {
