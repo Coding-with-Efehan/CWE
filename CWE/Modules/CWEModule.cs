@@ -2,7 +2,7 @@
 {
     using System;
     using CWE.Data;
-    using Discord.Addons.Interactive;
+    using CWE.Interactive;
     using Discord.Commands;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
