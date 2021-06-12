@@ -1,13 +1,7 @@
 ﻿namespace CWE.Data.Models
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-
     /// <summary>
-    /// Defines a standard Tag, which is a phrase that triggers a response from CWE.
+    /// A tag containing content.
     /// </summary>
     public class Tag
     {

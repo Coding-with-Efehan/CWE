@@ -49,17 +49,6 @@ namespace CWE.Data.Migrations
                     b.ToTable("Campaigns");
                 });
 
-            modelBuilder.Entity("CWE.Data.Models.Message", b =>
-                {
-                    b.Property<ulong>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint unsigned");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Messages");
-                });
-
             modelBuilder.Entity("CWE.Data.Models.Request", b =>
                 {
                     b.Property<int>("Id")
@@ -83,36 +72,24 @@ namespace CWE.Data.Migrations
                     b.ToTable("Requests");
                 });
 
-            modelBuilder.Entity("CWE.Data.Models.User", b =>
+            modelBuilder.Entity("CWE.Data.Models.Tag", b =>
                 {
-                    b.Property<ulong>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint unsigned");
+                        .HasColumnType("int");
 
-                    b.Property<ulong>("MessageId")
+                    b.Property<string>("Content")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext");
+
+                    b.Property<ulong>("OwnerId")
                         .HasColumnType("bigint unsigned");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MessageId");
-
-                    b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("CWE.Data.Models.User", b =>
-                {
-                    b.HasOne("CWE.Data.Models.Message", "Message")
-                        .WithMany("Users")
-                        .HasForeignKey("MessageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Message");
-                });
-
-            modelBuilder.Entity("CWE.Data.Models.Message", b =>
-                {
-                    b.Navigation("Users");
+                    b.ToTable("Tags");
                 });
 #pragma warning restore 612, 618
         }

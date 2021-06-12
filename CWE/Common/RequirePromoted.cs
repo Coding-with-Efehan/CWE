@@ -12,7 +12,7 @@
     using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
-    /// Attribute used to check if the user is able to manage tags.
+    /// Attribute used to ensure the user is promoted (either a regular or associate).
     /// </summary>
     public class RequirePromoted : PreconditionAttribute
     {

@@ -55,10 +55,11 @@
         /// </summary>
         /// <param name="title">The title to be used.</param>
         /// <param name="description">The description to be used.</param>
+        /// <param name="footer">The footer to be used.</param>
         /// <returns>An <see cref="Embed"/> with an informative style.</returns>
-        public static Embed GetInformationEmbed(string title, string description)
+        public static Embed GetInformationEmbed(string title, string description, string footer = null)
         {
-            var embed = new EmbedBuilder()
+            var builder = new EmbedBuilder()
                 .WithAuthor(x =>
                 {
                     x
@@ -66,9 +67,14 @@
                     .WithName(title);
                 })
                 .WithDescription(description)
-                .WithColor(Colors.Information)
-                .Build();
-            return embed;
+                .WithColor(Colors.Information);
+
+            if (!string.IsNullOrEmpty(footer))
+            {
+                builder.WithFooter(footer);
+            }
+
+            return builder.Build();
         }
 
         /// <summary>

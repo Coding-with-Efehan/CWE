@@ -237,84 +237,137 @@
         }
 
         /// <summary>
-        /// Command used to call a tag.
+        /// The command used to get all tags.
         /// </summary>
-        /// <param name="tagName">The tag to execute.</param>
-        /// <returns>The execution of a tag, <see cref="Task"/>.</returns>
-        [Command("tag")]
-        public async Task ExecuteTag(string tagName)
-        {
-            var tag = await this.DataAccessLayer.GetTag(tagName);
-            await this.ReplyAsync(tag.Content);
-        }
-
-        /// <summary>
-        /// Command used to create a tag.
-        /// </summary>
-        /// <param name="tagName">The tag's name.</param>
-        /// <param name="content">The content that the tag should hold.</param>
-        /// <returns>The creation of a tag, <see cref="Task"/>.</returns>
-        [Command("tag create")]
-        [RequirePromoted]
-        public async Task CreateTag(string tagName, [Remainder] string content)
-        {
-            var tag = await this.DataAccessLayer.GetTag(tagName);
-            if (tag != null)
-            {
-                throw new ArgumentException("The tag provided already exists, so I can't create one with the matching name.");
-            }
-
-            await this.DataAccessLayer.CreateTag(tagName, this.Context.User.Id, content);
-        }
-
-        /// <summary>
-        /// Command used to transfer ownership of a tag.
-        /// </summary>
-        /// <param name="tagName">The name of the tag to transfer.</param>
-        /// <param name="newOwnerId">The new owner's ID value.</param>
-        /// <returns>The ownership action of transering a tag. <see cref="Task"/>.</returns>
-        [Command("tag transfer")]
-        [RequirePromoted]
-        public async Task TranserTag(string tagName, ulong newOwnerId)
-        {
-            // The method already handles verification, so no need to check here.
-            await this.DataAccessLayer.TransferTagOwnership(tagName, this.Context.User.Id, newOwnerId);
-        }
-
-        /// <summary>
-        /// The command used to edit a currently existing tag's response.
-        /// </summary>
-        /// <param name="tagName">The tag to edit.</param>
-        /// <param name="newContent">The content that should be put in place of the old content.</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        [Command("tag edit")]
-        [RequirePromoted]
-        public async Task EditTag(string tagName, [Remainder] string newContent)
-        {
-            await this.DataAccessLayer.EditTagContent(tagName, this.Context.User.Id, newContent);
-        }
-
-        /// <summary>
-        /// The command used to return a list of currently existing tags.
-        /// </summary>
-        /// <returns>A list of tags in the form of an embed.</returns>
         [Command("tags")]
         public async Task GetTags()
         {
-            var builder = new StringBuilder();
-            var tags = await this.DataAccessLayer.GetTags(); // We do this here so we can access it later in the embed.
-            foreach (var tag in tags)
+            var tags = await this.DataAccessLayer.GetTags();
+
+            if (tags.Count() == 0)
             {
-                builder.Append($"{tag.Name}, ");
+                var noTags = Embeds.GetErrorEmbed("No tags found", "This server doesn't have any tags yet.");
+                await this.Context.Channel.SendMessageAsync(embed: noTags);
+                return;
             }
 
-            var embed = new EmbedBuilder()
-                .WithTitle($"Tags ({tags.Count()})")
-                .WithDescription(builder.ToString())
-                .WithColor(Colors.Discord)
-                .WithFooter($"Use \"{this.Configuration.GetValue<string>("Prefix")}tag <TagName> \" to use a tag.")
-                .Build();
-            await this.ReplyAsync(embed: embed);
+            string description = string.Join(", ", tags.Select(x => x.Name));
+
+            var list = Embeds.GetInformationEmbed($"Tags ({tags.Count()})", description, $"Use \"{this.Configuration.GetValue<string>("Prefix")}t name\" to view a tag");
+            await this.Context.Channel.SendMessageAsync(embed: list);
+        }
+
+        /// <summary>
+        /// The command used to get, create, modify and delete a tag.
+        /// </summary>
+        /// <param name="argument">A string argument that is later converted to an array of strings.</param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        [Command("tag")]
+        [Alias("t")]
+        public async Task TagAsync([Remainder] string argument)
+        {
+            var arguments = argument.Split(" ");
+
+            if (arguments.Count() == 1 && arguments[0] != "create" && arguments[0] != "edit" && arguments[0] != "transfer" && arguments[0] != "delete")
+            {
+                var tag = await this.DataAccessLayer.GetTag(arguments[0]);
+                if (tag == null)
+                {
+                    var embed = Embeds.GetErrorEmbed("Not found", "The tag you requested could not be found.");
+                    await this.Context.Channel.SendMessageAsync(embed: embed);
+                    return;
+                }
+
+                await this.Context.Channel.SendMessageAsync(tag.Content);
+                return;
+            }
+
+            var socketGuildUser = this.Context.User as SocketGuildUser;
+
+            switch (arguments[0])
+            {
+                case "create":
+                    var tag = await this.DataAccessLayer.GetTag(arguments[1]);
+                    if (tag != null)
+                    {
+                        var embed = Embeds.GetErrorEmbed("Already exists", "There already exists a tag with that name.");
+                        await this.Context.Channel.SendMessageAsync(embed: embed);
+                        return;
+                    }
+
+                    await this.DataAccessLayer.CreateTag(arguments[1], this.Context.User.Id, string.Join(" ", arguments.Skip(2)));
+                    var created = Embeds.GetSuccessEmbed("Tag created", $"The tag has been created. You can view it by using `{this.Configuration.GetValue<string>("Prefix")}tag {arguments[1]}`.");
+                    await this.Context.Channel.SendMessageAsync(embed: created);
+                    break;
+                case "edit":
+                    var foundTag = await this.DataAccessLayer.GetTag(arguments[1]);
+                    if (foundTag == null)
+                    {
+                        var embed = Embeds.GetErrorEmbed("Not found", "That tag could not be found.");
+                        await this.Context.Channel.SendMessageAsync(embed: embed);
+                        return;
+                    }
+
+                    if (foundTag.OwnerId != this.Context.User.Id && !socketGuildUser.GuildPermissions.Administrator)
+                    {
+                        var embed = Embeds.GetErrorEmbed("Access denied", "You need to be the owner of this tag or an administrator to edit the content of this tag.");
+                        await this.Context.Channel.SendMessageAsync(embed: embed);
+                        return;
+                    }
+
+                    await this.DataAccessLayer.EditTagContent(arguments[1], string.Join(" ", arguments.Skip(2)));
+                    var edited = Embeds.GetSuccessEmbed("Tag content modified", $"The content of the tag was successfully modified.");
+                    await this.Context.Channel.SendMessageAsync(embed: edited);
+                    break;
+                case "transfer":
+                    var tagToTransfer = await this.DataAccessLayer.GetTag(arguments[1]);
+                    if (tagToTransfer == null)
+                    {
+                        var embed = Embeds.GetErrorEmbed("Not found", "That tag could not be found.");
+                        await this.Context.Channel.SendMessageAsync(embed: embed);
+                        return;
+                    }
+
+                    if (!MentionUtils.TryParseUser(arguments[2], out ulong userId) || this.Context.Guild.GetUser(userId) == null)
+                    {
+                        var embed = Embeds.GetErrorEmbed("Invalid user", "Please provide a valid user.");
+                        await this.Context.Channel.SendMessageAsync(embed: embed);
+                        return;
+                    }
+
+                    if (tagToTransfer.OwnerId != this.Context.User.Id && !socketGuildUser.GuildPermissions.Administrator)
+                    {
+                        var embed = Embeds.GetErrorEmbed("Access denied", "You need to be the owner of this tag or an administrator to transfer the ownership of this tag.");
+                        await this.Context.Channel.SendMessageAsync(embed: embed);
+                        return;
+                    }
+
+                    await this.DataAccessLayer.EditTagOwner(arguments[1], userId);
+                    var success = Embeds.GetSuccessEmbed("Tag ownership transferred", $"The ownership of the tag has been transferred to <@{userId}>.");
+                    await this.Context.Channel.SendMessageAsync(embed: success);
+                    break;
+                case "delete":
+                    var tagToDelete = await this.DataAccessLayer.GetTag(arguments[1]);
+                    if (tagToDelete == null)
+                    {
+                        var embed = Embeds.GetErrorEmbed("Not found", "That tag could not be found.");
+                        await this.Context.Channel.SendMessageAsync(embed: embed);
+                        return;
+                    }
+
+                    if (tagToDelete.OwnerId != this.Context.User.Id && !socketGuildUser.GuildPermissions.Administrator)
+                    {
+                        var embed = Embeds.GetErrorEmbed("Access denied", "You need to be the owner of this tag or an administrator to delete this tag.");
+                        await this.Context.Channel.SendMessageAsync(embed: embed);
+                        return;
+                    }
+
+                    await this.DataAccessLayer.DeleteTag(arguments[1]);
+                    var deleted = Embeds.GetSuccessEmbed("Tag deleted", $"The tag was successfully deleted.");
+                    await this.Context.Channel.SendMessageAsync(embed: deleted);
+                    break;
+            }
         }
     }
 }
