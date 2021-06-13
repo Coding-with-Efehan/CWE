@@ -228,7 +228,7 @@ namespace CWE.Common
                 .WithTitle("Magic 8-Ball")
                 .WithDescription(
                     $"{user.Mention}'s Question For The Magic 8-Ball: `{question}`\n\nThe Magic 8-Ball's Response Is: `{eightResponse}\n`")
-                .WithFooter($"8-Ball response for: {user.Mention}")
+                .WithFooter($"8-Ball response for: {user.Username + "#" + user.Discriminator}")
                 .WithThumbnailUrl(
                     Icons.eightBall)
                 .WithCurrentTimestamp()
@@ -236,7 +236,7 @@ namespace CWE.Common
             return embed;
         }
 
-        public static Embed CoinflipEmbed(string output, SocketUser user)
+        public static Embed CoinflipEmbed(string output, string user)
         {
             var embed = new EmbedBuilder()
                 .WithColor(Colors.Coinflip)
@@ -244,7 +244,7 @@ namespace CWE.Common
                 .WithDescription($"The coin landed on __**{output}**__")
                 .WithThumbnailUrl(Icons.Coinflip)
                 .WithCurrentTimestamp()
-                .WithFooter($"Coin flipped by {user.Mention}")
+                .WithFooter($"Coin flipped by {user}")
                 .Build();
             return embed;
         }
@@ -264,7 +264,7 @@ namespace CWE.Common
                 .WithThumbnailUrl(
                     Icons.Poll)
                 .WithCurrentTimestamp()
-                .WithFooter($"*Poll started by {user.Username + "#" + user.Discriminator}*")
+                .WithFooter($"Poll started by {user.Username + "#" + user.Discriminator}")
                 .Build();
             return embed;
         }

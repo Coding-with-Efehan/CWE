@@ -111,7 +111,8 @@ namespace CWE.Modules
             };
 
             var randomizedResponse = coin[new Random().Next(0, coin.Count())];
-            var coinflip = Embeds.CoinflipEmbed(randomizedResponse, Context.User);
+            var coinflip = Embeds.CoinflipEmbed(randomizedResponse,
+                Context.User.Username + "#" + Context.User.Discriminator);
             await Context.Channel.SendMessageAsync(embed: coinflip);
         }
 
@@ -129,7 +130,6 @@ namespace CWE.Modules
 
             var poll = Embeds.pollEmbed(pollmsg, Context.User);
             var pollemb = await Context.Channel.SendMessageAsync(embed: poll);
-            // React with poll emojis
             await pollemb.AddReactionAsync(emoteUp);
             await pollemb.AddReactionAsync(emoteDown);
         }
