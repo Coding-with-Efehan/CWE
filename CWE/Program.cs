@@ -5,11 +5,11 @@
     using System.Threading.Tasks;
     using CWE.Data;
     using CWE.Data.Context;
-    using CWE.Interactive;
     using CWE.Services;
     using Discord;
     using Discord.Addons.Hosting;
     using Discord.WebSocket;
+    using Interactivity;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -54,7 +54,8 @@
                 {
                     services
                     .AddHostedService<CommandHandler>()
-                    .AddSingleton<InteractiveService>()
+                    .AddSingleton<InteractivityService>()
+                    .AddSingleton(new InteractivityConfig { DefaultTimeout = TimeSpan.FromSeconds(20) })
                     .AddDbContext<CWEDbContext>(x =>
                         x.UseMySql(
                             context.Configuration["Database"],

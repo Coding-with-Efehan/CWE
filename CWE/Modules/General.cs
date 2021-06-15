@@ -10,20 +10,22 @@
     using Discord;
     using Discord.Commands;
     using Discord.WebSocket;
+    using Interactivity;
     using Microsoft.Extensions.Configuration;
 
     /// <summary>
     /// The general module, containing commands related to campaigns and requests.
     /// </summary>
-    public class General : CWEModule
+    public class General : CWEModuleBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="General"/> class.
         /// </summary>
         /// <param name="serviceProvider">The <see cref="IServiceProvider"/> to inject.</param>
         /// <param name="configuration">The <see cref="IConfiguration"/> to inject.</param>
-        public General(IServiceProvider serviceProvider, IConfiguration configuration)
-                : base(serviceProvider, configuration)
+        /// <param name="interactivityService">The <see cref="InteractivityService"/> to inject.</param>
+        public General(IServiceProvider serviceProvider, IConfiguration configuration, InteractivityService interactivityService)
+                : base(serviceProvider, configuration, interactivityService)
         {
         }
 
@@ -60,8 +62,8 @@
 
             await this.Context.Channel.SendMessageAsync($"Briefly describe why {user.Mention} should be promoted to {type.ToString().ToLower()}? You have 2 minutes to answer.");
 
-            var response = await this.NextMessageAsync(timeout: TimeSpan.FromMinutes(2));
-            if (response == null)
+            var response = await this.Interactivity.NextMessageAsync(x => x.Author.Id == this.Context.User.Id, timeout: TimeSpan.FromMinutes(2));
+            if (!response.IsSuccess)
             {
                 await this.Context.Channel.SendMessageAsync("You waited too long, causing the campaign to automatically be cancelled.");
                 return;
@@ -70,7 +72,7 @@
             double total = this.Context.Guild.Users.Where(x => x.Roles.Any(x => x.Name == "Associate") || x.Roles.Any(x => x.Name == "Regular") || x.Roles.Any(x => x.Name == "Staff")).Count();
             int minimal = (int)Math.Ceiling(total / 2);
 
-            var campaign = new Campaign() { User = user.Id, Initiator = this.Context.User.Id, Reason = response.Content, Start = DateTime.Now, End = DateTime.Now + TimeSpan.FromDays(2), Type = type, Minimal = minimal };
+            var campaign = new Campaign() { User = user.Id, Initiator = this.Context.User.Id, Reason = response.Value.Content, Start = DateTime.Now, End = DateTime.Now + TimeSpan.FromDays(2), Type = type, Minimal = minimal };
             var campaignEmbed = Embeds.GetCampaignEmbed(campaign);
 
             var requestChannelId = this.Configuration.GetSection("Channels").GetValue<ulong>("Campaigns");

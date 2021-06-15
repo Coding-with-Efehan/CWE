@@ -3,18 +3,14 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
+	<GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Discord.Addons.Hosting" Version="3.0.0" />
-    <PackageReference Include="Discord.Net" Version="2.2.0" />
-    <PackageReference Include="Discord.Net.Commands" Version="2.2.0" />
-    <PackageReference Include="Discord.Net.Core" Version="2.2.0" />
-    <PackageReference Include="Discord.Net.Labs.Core" Version="2.3.8" />
-    <PackageReference Include="Discord.Net.Labs.Rest" Version="2.3.8" />
-    <PackageReference Include="Discord.Net.Labs.WebSocket" Version="2.3.8" />
-    <PackageReference Include="Discord.Net.WebSocket" Version="2.2.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.5" />
+    <PackageReference Include="Discord.Addons.Hosting" Version="3.1.1" />
+    <PackageReference Include="Discord.InteractivityAddon" Version="2.4.0" />
+    <PackageReference Include="Discord.Net.Labs" Version="2.3.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.7" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -23,7 +19,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CWE.Data\CWE.Data.csproj" />
-    <ProjectReference Include="..\CWE.Interactive\CWE.Interactive.csproj" />
   </ItemGroup>
 
   <ItemGroup>

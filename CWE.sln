@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CWE", "CWE\CWE.csproj", "{9
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CWE.Data", "CWE.Data\CWE.Data.csproj", "{7C3EA801-B8A7-4D46-964C-67D22A6D31DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CWE.Interactive", "CWE.Interactive\CWE.Interactive.csproj", "{5F3DB094-F6A9-4BFE-AD46-731C10C66C81}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{7C3EA801-B8A7-4D46-964C-67D22A6D31DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C3EA801-B8A7-4D46-964C-67D22A6D31DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C3EA801-B8A7-4D46-964C-67D22A6D31DF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5F3DB094-F6A9-4BFE-AD46-731C10C66C81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5F3DB094-F6A9-4BFE-AD46-731C10C66C81}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5F3DB094-F6A9-4BFE-AD46-731C10C66C81}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5F3DB094-F6A9-4BFE-AD46-731C10C66C81}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
