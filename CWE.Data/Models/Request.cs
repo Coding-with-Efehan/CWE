@@ -23,7 +23,7 @@
         /// <summary>
         /// The request has been denied.
         /// </summary>
-        Denied
+        Denied,
     }
 
     /// <summary>
