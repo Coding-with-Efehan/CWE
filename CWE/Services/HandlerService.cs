@@ -13,7 +13,7 @@
     using Microsoft.Extensions.Logging;
 
     /// <summary>
-    ///     A service used to manage and instagate handlers.
+    /// A service used to manage and instagate handlers.
     /// </summary>
     public class HandlerService : InitializedService
     {
@@ -24,7 +24,7 @@
         private readonly ILogger<HandlerService> logger;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="HandlerService"/> class.
+        /// Initializes a new instance of the <see cref="HandlerService"/> class.
         /// </summary>
         /// <param name="provider">The <see cref="IServiceProvider"/> to inject.</param>
         /// <param name="configuration">The <see cref="IConfiguration"/> to inject.</param>
@@ -41,7 +41,7 @@
         }
 
         /// <summary>
-        ///     Gets a handler with the specified type.
+        /// Gets a handler with the specified type.
         /// </summary>
         /// <typeparam name="T">The type of the handler to get</typeparam>
         /// <returns>The handler with the type of <typeparamref name="T"/>. If no handler is found then <see langword="null"/></returns>
@@ -102,13 +102,13 @@
     }
 
     /// <summary>
-    ///     Marks the current class as a handler
+    /// Marks the current class as a handler
     /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Directly related to the handler service.")]
     public abstract class DiscordHandler
     {
         /// <summary>
-        ///     Intitialized this handler asynchronously.
+        /// Intitialized this handler asynchronously.
         /// </summary>
         /// <param name="client">The <see cref="DiscordSocketClient"/> to inject.</param>
         /// <param name="serviceProvider">The <see cref="IServiceProvider"/> to inject.</param>
@@ -120,7 +120,7 @@
         }
 
         /// <summary>
-        ///     Intitialized this handler.
+        /// Intitialized this handler.
         /// </summary>
         /// <param name="client">The <see cref="DiscordSocketClient"/> to inject.</param>
         /// <param name="serviceProvider">The <see cref="IServiceProvider"/> to inject.</param>
