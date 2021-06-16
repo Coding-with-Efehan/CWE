@@ -142,15 +142,8 @@
         /// <returns>A <see cref="Tag"/> depending on if the tag exists in the database.</returns>
         public async Task<Tag> GetTag(string tagName)
         {
-            var tag = await this.dbContext.Tags
+            return await this.dbContext.Tags
                 .FirstOrDefaultAsync(x => x.Name == tagName);
-
-            if (tag == null)
-            {
-                return null;
-            }
-
-            return tag;
         }
 
         /// <summary>
@@ -246,6 +239,73 @@
             }
 
             tag.OwnerId = ownerId;
+            await this.dbContext.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Get a suggestion based upon its ID.
+        /// </summary>
+        /// <param name="id">The ID of the suggestion.</param>
+        /// <returns>A <see cref="Suggestion"/> depending on if the tag exists in the database.</returns>
+        public async Task<Suggestion> GetSuggestion(int id)
+        {
+            return await this.dbContext.Suggestions
+                .FindAsync(id);
+        }
+
+        /// <summary>
+        /// Create a new suggestion.
+        /// </summary>
+        /// <param name="initiator">The ID of the initiator.</param>
+        /// <param name="messageId">The ID of the suggestion its message.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task CreateSuggestion(ulong initiator, ulong messageId)
+        {
+            this.dbContext.Add(new Suggestion
+            {
+                Initiator = initiator,
+                MessageId = messageId,
+            });
+
+            await this.dbContext.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Update the state of an existing suggestion.
+        /// </summary>
+        /// <param name="id">The ID of the suggestion.</param>
+        /// <param name="state">The new <see cref="SuggestionState"/>.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task UpdateSuggestion(int id, SuggestionState state)
+        {
+            var suggestion = await this.dbContext.Suggestions
+                .FindAsync(id);
+
+            if (suggestion == null)
+            {
+                return;
+            }
+
+            suggestion.State = state;
+            await this.dbContext.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Delete a suggestion.
+        /// </summary>
+        /// <param name="id">The ID of the suggestion.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task DeleteSuggestion(int id)
+        {
+            var suggestion = await this.dbContext.Suggestions
+                .FindAsync(id);
+
+            if (suggestion == null)
+            {
+                return;
+            }
+
+            this.dbContext.Remove(suggestion);
             await this.dbContext.SaveChangesAsync();
         }
     }
