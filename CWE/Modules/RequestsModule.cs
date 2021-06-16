@@ -30,6 +30,66 @@
         }
 
         /// <summary>
+        /// Creates a new <see cref="Embed"/> for a <see cref="Request"/>.
+        /// </summary>
+        /// <param name="request">The <see cref="Request"/> that the embed is made for.</param>
+        /// <returns>An <see cref="Embed"/> for a <see cref="Request"/>.</returns>
+        public static Embed GetRequestEmbed(Request request)
+        {
+            var builder = new EmbedBuilder();
+
+            switch (request.State)
+            {
+                case RequestState.Pending:
+                    builder
+                        .WithAuthor(x =>
+                        {
+                            x
+                            .WithIconUrl(Icons.NewRequest)
+                            .WithName("New request");
+                        })
+                        .WithColor(Colors.Information);
+                    break;
+                case RequestState.Active:
+                    builder
+                        .WithAuthor(x =>
+                        {
+                            x
+                            .WithIconUrl(Icons.ActiveRequest)
+                            .WithName("Active request");
+                        })
+                        .WithColor(Colors.Active);
+                    break;
+                case RequestState.Finished:
+                    builder
+                        .WithAuthor(x =>
+                        {
+                            x
+                            .WithIconUrl(Icons.Success)
+                            .WithName("Finished request");
+                        })
+                        .WithColor(Colors.Success);
+                    break;
+                case RequestState.Denied:
+                    builder
+                        .WithAuthor(x =>
+                        {
+                            x
+                            .WithIconUrl(Icons.DeniedRequest)
+                            .WithName("Denied request");
+                        })
+                        .WithColor(Colors.Error);
+                    break;
+            }
+
+            builder
+                .AddField("Initiator", $"<@{request.Initiator}>", true)
+                .AddField("Description", request.Description);
+
+            return builder.Build();
+        }
+
+        /// <summary>
         /// The command used to create a new request.
         /// </summary>
         /// <param name="description">The description of the request.</param>

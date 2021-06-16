@@ -87,7 +87,20 @@
             int minimal = (int)Math.Ceiling(total / 2);
 
             var campaign = new Campaign() { User = user.Id, Initiator = this.Context.User.Id, Reason = response.Value.Content, Start = DateTime.Now, End = DateTime.Now + TimeSpan.FromDays(2), Type = type, Minimal = minimal };
-            var campaignEmbed = Embeds.GetCampaignEmbed(campaign);
+            var campaignEmbed = new EmbedBuilder()
+                .WithAuthor(x =>
+                {
+                    x
+                    .WithIconUrl(Icons.NewCampaign)
+                    .WithName("New campaign");
+                })
+                .AddField("Initiator", $"<@{campaign.Initiator}>", true)
+                .AddField("Member", $"<@{campaign.User}>", true)
+                .AddField("Type", campaign.Type, true)
+                .AddField("Reason", campaign.Reason)
+                .AddField("Voting", $"This campaign needs to receive {campaign.Minimal} votes in favour in order to succeed.")
+                .WithColor(Colors.Information)
+                .Build();
 
             var requestChannelId = this.Configuration.GetSection("Channels").GetValue<ulong>("Campaigns");
             var vote = await this.Context.Guild.GetTextChannel(requestChannelId).SendMessageAsync(embed: campaignEmbed);
@@ -132,9 +145,23 @@
 
             try
             {
-                var denied = Embeds.GetAcceptedEmbed(campaign, "This campaign was accepted by an administrator.");
+                var accepted = new EmbedBuilder()
+                    .WithAuthor(x =>
+                    {
+                        x
+                        .WithIconUrl(Icons.AcceptedCampaign)
+                        .WithName("Accepted campaign");
+                    })
+                    .AddField("Initiator", $"<@{campaign.Initiator}>", true)
+                    .AddField("Member", $"<@{campaign.User}>", true)
+                    .AddField("Type", campaign.Type, true)
+                    .AddField("Reason", campaign.Reason)
+                    .AddField("Voting", "This campaign was accepted by an administrator.")
+                    .WithColor(Colors.Success)
+                    .Build();
+
                 var message = await this.Context.Guild.GetTextChannel(this.Configuration.GetSection("Channels").GetValue<ulong>("Campaigns")).GetMessageAsync(campaign.Message) as IUserMessage;
-                await message.ModifyAsync(x => x.Embed = denied);
+                await message.ModifyAsync(x => x.Embed = accepted);
                 await message.RemoveAllReactionsAsync();
 
                 if (campaign.Type == CampaignType.Regular)
@@ -195,7 +222,21 @@
 
             try
             {
-                var denied = Embeds.GetDeniedEmbed(campaign, "This campaign was cancelled by an administrator.");
+                var denied = new EmbedBuilder()
+                    .WithAuthor(x =>
+                    {
+                        x
+                        .WithIconUrl(Icons.DeniedCampaign)
+                        .WithName("Denied campaign");
+                    })
+                    .AddField("Initiator", $"<@{campaign.Initiator}>", true)
+                    .AddField("Member", $"<@{campaign.User}>", true)
+                    .AddField("Type", campaign.Type, true)
+                    .AddField("Reason", campaign.Reason)
+                    .AddField("Voting", "This campaign was cancelled by an administrator.")
+                    .WithColor(Colors.Error)
+                    .Build();
+
                 var message = await this.Context.Guild.GetTextChannel(this.Configuration.GetSection("Channels").GetValue<ulong>("Campaigns")).GetMessageAsync(campaign.Message) as IUserMessage;
                 await message.ModifyAsync(x => x.Embed = denied);
                 await message.RemoveAllReactionsAsync();
