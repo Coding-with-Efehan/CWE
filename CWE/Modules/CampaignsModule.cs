@@ -39,14 +39,24 @@
         {
             if (user.Roles.Any(x => x.Name == type.ToString()))
             {
-                var error = Embeds.GetErrorEmbed("User already promoted", $"The user is already promoted to {type.ToString().ToLower()}.");
+                var error = new CWEEmbedBuilder()
+                    .WithTitle("User already promoted")
+                    .WithDescription($"The user is already promoted to {type.ToString().ToLower()}.")
+                    .WithStyle(EmbedStyle.Error)
+                    .Build();
+
                 await this.Context.Channel.SendMessageAsync(embed: error);
                 return;
             }
 
             if (user.Roles.Any(x => x.Name == "Associate") && type == CampaignType.Regular)
             {
-                var error = Embeds.GetErrorEmbed("User already associate", $"Because the user is already an associate, he/she cannot be promoted to a regular.");
+                var error = new CWEEmbedBuilder()
+                    .WithTitle("User already associate")
+                    .WithDescription($"Because the user is already an associate, he/she cannot be promoted to a regular.")
+                    .WithStyle(EmbedStyle.Error)
+                    .Build();
+
                 await this.Context.Channel.SendMessageAsync(embed: error);
                 return;
             }
@@ -54,7 +64,12 @@
             var campaigns = await this.DataAccessLayer.GetCampaigns();
             if (campaigns.Any(x => x.User == user.Id))
             {
-                var error = Embeds.GetErrorEmbed("User already in campaign", $"There is already a vote in progress for that user.");
+                var error = new CWEEmbedBuilder()
+                    .WithTitle("User already in campaign")
+                    .WithDescription($"There is already a vote in progress for that user.")
+                    .WithStyle(EmbedStyle.Error)
+                    .Build();
+
                 await this.Context.Channel.SendMessageAsync(embed: error);
                 return;
             }
@@ -81,7 +96,12 @@
             campaign.Message = vote.Id;
             await this.DataAccessLayer.CreateCampaign(campaign);
 
-            var success = Embeds.GetSuccessEmbed("Started campaign", $"Successfully launched the campaign in <#{requestChannelId}>!");
+            var success = new CWEEmbedBuilder()
+                    .WithTitle("Started campaign")
+                    .WithDescription($"Successfully launched the campaign in <#{requestChannelId}>!")
+                    .WithStyle(EmbedStyle.Success)
+                    .Build();
+
             await this.Context.Channel.SendMessageAsync(embed: success);
         }
 
@@ -97,7 +117,12 @@
             var campaigns = await this.DataAccessLayer.GetCampaigns();
             if (campaigns.All(x => x.User != user.Id))
             {
-                var error = Embeds.GetErrorEmbed("User not in campaign", $"That user is not in a campaign.");
+                var error = new CWEEmbedBuilder()
+                    .WithTitle("User not in campaign")
+                    .WithDescription($"That user is not in a campaign.")
+                    .WithStyle(EmbedStyle.Error)
+                    .Build();
+
                 await this.Context.Channel.SendMessageAsync(embed: error);
                 return;
             }
@@ -122,13 +147,23 @@
                     await user.AddRoleAsync(user.Guild.GetRole(this.Configuration.GetSection("Roles").GetValue<ulong>("Associate")));
                 }
 
-                var success = Embeds.GetSuccessEmbed("Campaign accepted", $"Successfully accepted the campaign.");
+                var success = new CWEEmbedBuilder()
+                    .WithTitle("Campaign accepted")
+                    .WithDescription($"Successfully accepted the campaign.")
+                    .WithStyle(EmbedStyle.Success)
+                    .Build();
+
                 await this.Context.Channel.SendMessageAsync(embed: success);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                var error = Embeds.GetErrorEmbed("Error while accepting campaign", $"An error occurred while trying to accept that campaign.");
+                var error = new CWEEmbedBuilder()
+                    .WithTitle("Error while accepting campaign")
+                    .WithDescription($"An error occurred while trying to accept that campaign.")
+                    .WithStyle(EmbedStyle.Error)
+                    .Build();
+
                 await this.Context.Channel.SendMessageAsync(embed: error);
             }
         }
@@ -145,7 +180,12 @@
             var campaigns = await this.DataAccessLayer.GetCampaigns();
             if (campaigns.All(x => x.User != user.Id))
             {
-                var error = Embeds.GetErrorEmbed("User not in campaign", $"That user is not in a campaign.");
+                var error = new CWEEmbedBuilder()
+                    .WithTitle("User not in campaign")
+                    .WithDescription($"That user is not in a campaign.")
+                    .WithStyle(EmbedStyle.Error)
+                    .Build();
+
                 await this.Context.Channel.SendMessageAsync(embed: error);
                 return;
             }
@@ -160,13 +200,23 @@
                 await message.ModifyAsync(x => x.Embed = denied);
                 await message.RemoveAllReactionsAsync();
 
-                var success = Embeds.GetSuccessEmbed("Campaign cancelled", $"Successfully cancelled the campaign.");
+                var success = new CWEEmbedBuilder()
+                    .WithTitle("Campaign cancelled")
+                    .WithDescription($"Successfully cancelled the campaign.")
+                    .WithStyle(EmbedStyle.Success)
+                    .Build();
+
                 await this.Context.Channel.SendMessageAsync(embed: success);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                var error = Embeds.GetErrorEmbed("Error while cancelling campaign", $"An error occurred while trying to cancel that campaign.");
+                var error = new CWEEmbedBuilder()
+                    .WithTitle("Error while cancelling campaign")
+                    .WithDescription($"An error occurred while trying to cancel that campaign.")
+                    .WithStyle(EmbedStyle.Error)
+                    .Build();
+
                 await this.Context.Channel.SendMessageAsync(embed: error);
             }
         }

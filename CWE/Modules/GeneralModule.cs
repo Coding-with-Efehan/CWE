@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
+    using CWE.Common;
     using Discord.Commands;
     using Interactivity;
     using Microsoft.Extensions.Configuration;

@@ -38,14 +38,25 @@
 
             if (tags.Count() == 0)
             {
-                var noTags = Embeds.GetErrorEmbed("No tags found", "This server doesn't have any tags yet.");
+                var noTags = new CWEEmbedBuilder()
+                    .WithTitle("No tags found")
+                    .WithDescription("This server doesn't have any tags yet.")
+                    .WithStyle(EmbedStyle.Error)
+                    .Build();
+
                 await this.Context.Channel.SendMessageAsync(embed: noTags);
                 return;
             }
 
             string description = string.Join(", ", tags.Select(x => x.Name));
 
-            var list = Embeds.GetInformationEmbed($"Tags ({tags.Count()})", description, $"Use \"{this.Configuration.GetValue<string>("Prefix")}t name\" to view a tag");
+            var list = new CWEEmbedBuilder()
+                    .WithTitle($"Tags ({tags.Count()})")
+                    .WithDescription(description)
+                    .WithFooter($"Use \"{this.Configuration.GetValue<string>("Prefix")}t name\" to view a tag")
+                    .WithStyle(EmbedStyle.Information)
+                    .Build();
+
             await this.Context.Channel.SendMessageAsync(embed: list);
         }
 
@@ -65,7 +76,12 @@
                 var tag = await this.DataAccessLayer.GetTag(arguments[0]);
                 if (tag == null)
                 {
-                    var embed = Embeds.GetErrorEmbed("Not found", "The tag you requested could not be found.");
+                    var embed = new CWEEmbedBuilder()
+                        .WithTitle("Not found")
+                        .WithDescription("The tag you requested could not be found.")
+                        .WithStyle(EmbedStyle.Error)
+                        .Build();
+
                     await this.Context.Channel.SendMessageAsync(embed: embed);
                     return;
                 }
@@ -82,87 +98,152 @@
                     var tag = await this.DataAccessLayer.GetTag(arguments[1]);
                     if (tag != null)
                     {
-                        var embed = Embeds.GetErrorEmbed("Already exists", "There already exists a tag with that name.");
+                        var embed = new CWEEmbedBuilder()
+                            .WithTitle("Already exists")
+                            .WithDescription("There already exists a tag with that name.")
+                            .WithStyle(EmbedStyle.Error)
+                            .Build();
+
                         await this.Context.Channel.SendMessageAsync(embed: embed);
                         return;
                     }
 
                     if (!this.Context.User.IsPromoted())
                     {
-                        var embed = Embeds.GetErrorEmbed("Access denied", "You need to be a regular, associate or administrator in order to create tags.");
+                        var embed = new CWEEmbedBuilder()
+                            .WithTitle("Access denied")
+                            .WithDescription("You need to be a regular, associate or administrator in order to create tags.")
+                            .WithStyle(EmbedStyle.Error)
+                            .Build();
+
                         await this.Context.Channel.SendMessageAsync(embed: embed);
                         return;
                     }
 
                     await this.DataAccessLayer.CreateTag(arguments[1], this.Context.User.Id, string.Join(" ", arguments.Skip(2)));
-                    var created = Embeds.GetSuccessEmbed("Tag created", $"The tag has been created. You can view it by using `{this.Configuration.GetValue<string>("Prefix")}tag {arguments[1]}`.");
+                    var created = new CWEEmbedBuilder()
+                            .WithTitle("Tag created")
+                            .WithDescription($"The tag has been created. You can view it by using `{this.Configuration.GetValue<string>("Prefix")}tag {arguments[1]}`.")
+                            .WithStyle(EmbedStyle.Success)
+                            .Build();
+
                     await this.Context.Channel.SendMessageAsync(embed: created);
                     break;
                 case "edit":
                     var foundTag = await this.DataAccessLayer.GetTag(arguments[1]);
                     if (foundTag == null)
                     {
-                        var embed = Embeds.GetErrorEmbed("Not found", "That tag could not be found.");
+                        var embed = new CWEEmbedBuilder()
+                            .WithTitle("Not found")
+                            .WithDescription("That tag could not be found.")
+                            .WithStyle(EmbedStyle.Error)
+                            .Build();
+
                         await this.Context.Channel.SendMessageAsync(embed: embed);
                         return;
                     }
 
                     if (foundTag.OwnerId != this.Context.User.Id && !socketGuildUser.GuildPermissions.Administrator)
                     {
-                        var embed = Embeds.GetErrorEmbed("Access denied", "You need to be the owner of this tag or an administrator to edit the content of this tag.");
+                        var embed = new CWEEmbedBuilder()
+                            .WithTitle("Access denied")
+                            .WithDescription("You need to be the owner of this tag or an administrator to edit the content of this tag.")
+                            .WithStyle(EmbedStyle.Error)
+                            .Build();
+
                         await this.Context.Channel.SendMessageAsync(embed: embed);
                         return;
                     }
 
                     await this.DataAccessLayer.EditTagContent(arguments[1], string.Join(" ", arguments.Skip(2)));
-                    var edited = Embeds.GetSuccessEmbed("Tag content modified", $"The content of the tag was successfully modified.");
+                    var edited = new CWEEmbedBuilder()
+                            .WithTitle("Tag content modified")
+                            .WithDescription($"The content of the tag was successfully modified.")
+                            .WithStyle(EmbedStyle.Success)
+                            .Build();
+
                     await this.Context.Channel.SendMessageAsync(embed: edited);
                     break;
                 case "transfer":
                     var tagToTransfer = await this.DataAccessLayer.GetTag(arguments[1]);
                     if (tagToTransfer == null)
                     {
-                        var embed = Embeds.GetErrorEmbed("Not found", "That tag could not be found.");
+                        var embed = new CWEEmbedBuilder()
+                            .WithTitle("Not found")
+                            .WithDescription("That tag could not be found.")
+                            .WithStyle(EmbedStyle.Error)
+                            .Build();
+
                         await this.Context.Channel.SendMessageAsync(embed: embed);
                         return;
                     }
 
                     if (!MentionUtils.TryParseUser(arguments[2], out ulong userId) || this.Context.Guild.GetUser(userId) == null)
                     {
-                        var embed = Embeds.GetErrorEmbed("Invalid user", "Please provide a valid user.");
+                        var embed = new CWEEmbedBuilder()
+                            .WithTitle("Invalid user")
+                            .WithDescription("Please provide a valid user.")
+                            .WithStyle(EmbedStyle.Error)
+                            .Build();
+
                         await this.Context.Channel.SendMessageAsync(embed: embed);
                         return;
                     }
 
                     if (tagToTransfer.OwnerId != this.Context.User.Id && !socketGuildUser.GuildPermissions.Administrator)
                     {
-                        var embed = Embeds.GetErrorEmbed("Access denied", "You need to be the owner of this tag or an administrator to transfer the ownership of this tag.");
+                        var embed = new CWEEmbedBuilder()
+                            .WithTitle("Access denied")
+                            .WithDescription("You need to be the owner of this tag or an administrator to transfer the ownership of this tag.")
+                            .WithStyle(EmbedStyle.Error)
+                            .Build();
+
                         await this.Context.Channel.SendMessageAsync(embed: embed);
                         return;
                     }
 
                     await this.DataAccessLayer.EditTagOwner(arguments[1], userId);
-                    var success = Embeds.GetSuccessEmbed("Tag ownership transferred", $"The ownership of the tag has been transferred to <@{userId}>.");
+                    var success = new CWEEmbedBuilder()
+                            .WithTitle("Tag ownership transferred")
+                            .WithDescription($"The ownership of the tag has been transferred to <@{userId}>.")
+                            .WithStyle(EmbedStyle.Success)
+                            .Build();
+
                     await this.Context.Channel.SendMessageAsync(embed: success);
                     break;
                 case "delete":
                     var tagToDelete = await this.DataAccessLayer.GetTag(arguments[1]);
                     if (tagToDelete == null)
                     {
-                        var embed = Embeds.GetErrorEmbed("Not found", "That tag could not be found.");
+                        var embed = new CWEEmbedBuilder()
+                            .WithTitle("Not found")
+                            .WithDescription("That tag could not be found.")
+                            .WithStyle(EmbedStyle.Error)
+                            .Build();
+
                         await this.Context.Channel.SendMessageAsync(embed: embed);
                         return;
                     }
 
                     if (tagToDelete.OwnerId != this.Context.User.Id && !socketGuildUser.GuildPermissions.Administrator)
                     {
-                        var embed = Embeds.GetErrorEmbed("Access denied", "You need to be the owner of this tag or an administrator to delete this tag.");
+                        var embed = new CWEEmbedBuilder()
+                            .WithTitle("Access denied")
+                            .WithDescription("You need to be the owner of this tag or an administrator to delete this tag.")
+                            .WithStyle(EmbedStyle.Error)
+                            .Build();
+
                         await this.Context.Channel.SendMessageAsync(embed: embed);
                         return;
                     }
 
                     await this.DataAccessLayer.DeleteTag(arguments[1]);
-                    var deleted = Embeds.GetSuccessEmbed("Tag deleted", $"The tag was successfully deleted.");
+                    var deleted = new CWEEmbedBuilder()
+                            .WithTitle("Tag deleted")
+                            .WithDescription($"The tag was successfully deleted.")
+                            .WithStyle(EmbedStyle.Success)
+                            .Build();
+
                     await this.Context.Channel.SendMessageAsync(embed: deleted);
                     break;
             }

@@ -39,7 +39,12 @@
         {
             if (CommandHandler.Requests == false)
             {
-                var error = Embeds.GetErrorEmbed("Requests disabled", $"Requests are currently disabled, please come back later.");
+                var error = new CWEEmbedBuilder()
+                    .WithTitle("Requests disabled")
+                    .WithDescription($"Requests are currently disabled, please come back later.")
+                    .WithStyle(EmbedStyle.Error)
+                    .Build();
+
                 await this.Context.Channel.SendMessageAsync(embed: error);
                 return;
             }
@@ -47,7 +52,12 @@
             var socketGuildUser = this.Context.User as SocketGuildUser;
             if (socketGuildUser.Roles.All(x => x.Name != "Patron"))
             {
-                var error = Embeds.GetErrorEmbed("Not a Patron", $"This command can only be used by patrons. Take a look at [our Patreon page](https://www.patreon.com/codingwithefehan) to become a patron.");
+                var error = new CWEEmbedBuilder()
+                    .WithTitle("Not a Patron")
+                    .WithDescription($"This command can only be used by patrons. Take a look at [our Patreon page](https://www.patreon.com/codingwithefehan) to become a patron.")
+                    .WithStyle(EmbedStyle.Error)
+                    .Build();
+
                 await this.Context.Channel.SendMessageAsync(embed: error);
                 return;
             }
@@ -71,13 +81,23 @@
             try
             {
                 await this.DataAccessLayer.CreateRequest(request);
-                var success = Embeds.GetSuccessEmbed("Request sent!", $"Your request has been sent!");
+                var success = new CWEEmbedBuilder()
+                    .WithTitle("Request sent!")
+                    .WithDescription($"Your request has been sent!")
+                    .WithStyle(EmbedStyle.Success)
+                    .Build();
+
                 await this.Context.Channel.SendMessageAsync(embed: success);
             }
             catch
             {
                 await message.DeleteAsync();
-                var error = Embeds.GetErrorEmbed("Error", $"An error occurred while sending your request.");
+                var error = new CWEEmbedBuilder()
+                    .WithTitle("Error")
+                    .WithDescription($"An error occurred while sending your request.")
+                    .WithStyle(EmbedStyle.Error)
+                    .Build();
+
                 await this.Context.Channel.SendMessageAsync(embed: error);
             }
         }
@@ -91,7 +111,12 @@
         public async Task ToggleRequests()
         {
             CommandHandler.Requests = !CommandHandler.Requests;
-            var success = Embeds.GetSuccessEmbed((CommandHandler.Requests ? "Enabled" : "Disabled") + " requests", $"Successfully {(CommandHandler.Requests ? "enabled" : "disabled")} requests!");
+            var success = new CWEEmbedBuilder()
+                    .WithTitle((CommandHandler.Requests ? "Enabled" : "Disabled") + " requests")
+                    .WithDescription($"Successfully {(CommandHandler.Requests ? "enabled" : "disabled")} requests!")
+                    .WithStyle(EmbedStyle.Success)
+                    .Build();
+
             await this.Context.Channel.SendMessageAsync(embed: success);
         }
     }
