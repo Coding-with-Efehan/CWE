@@ -129,7 +129,7 @@
             };
 
             var channel = this.Context.Guild.GetTextChannel(this.Configuration.GetSection("Channels").GetValue<ulong>("Requests"));
-            var requestEmbed = Embeds.GetRequestEmbed(request);
+            var requestEmbed = GetRequestEmbed(request);
             var component = new ComponentBuilder()
                 .WithButton("Deny", "deny", ButtonStyle.Danger)
                 .WithButton("Switch", "switch", ButtonStyle.Success)

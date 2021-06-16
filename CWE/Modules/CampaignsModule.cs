@@ -29,6 +29,80 @@
         }
 
         /// <summary>
+        /// Creates a new <see cref="Embed"/> for a <see cref="Campaign"/>.
+        /// </summary>
+        /// <param name="campaign">The <see cref="Campaign"/> that the embed is made for.</param>
+        /// <returns>An <see cref="Embed"/> for a <see cref="Campaign"/>.</returns>
+        public static Embed GetCampaignEmbed(Campaign campaign)
+        {
+            var embed = new EmbedBuilder()
+                .WithAuthor(x =>
+                {
+                    x
+                    .WithIconUrl(Icons.NewCampaign)
+                    .WithName("New campaign");
+                })
+                .AddField("Initiator", $"<@{campaign.Initiator}>", true)
+                .AddField("Member", $"<@{campaign.User}>", true)
+                .AddField("Type", campaign.Type, true)
+                .AddField("Reason", campaign.Reason)
+                .AddField("Voting", $"This campaign needs to receive {campaign.Minimal} votes in favour in order to succeed.")
+                .WithColor(Colors.Information)
+                .Build();
+            return embed;
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="Embed"/> for an accepted <see cref="Campaign"/>.
+        /// </summary>
+        /// <param name="campaign">The <see cref="Campaign"/> that the embed is made for.</param>
+        /// <param name="reason">An optional reason as per why the campaign was accepted.</param>
+        /// <returns>An <see cref="Embed"/> for an accepted <see cref="Campaign"/>.</returns>
+        public static Embed GetAcceptedEmbed(Campaign campaign, string reason = null)
+        {
+            var embed = new EmbedBuilder()
+                .WithAuthor(x =>
+                {
+                    x
+                    .WithIconUrl(Icons.AcceptedCampaign)
+                    .WithName("Accepted campaign");
+                })
+                .AddField("Initiator", $"<@{campaign.Initiator}>", true)
+                .AddField("Member", $"<@{campaign.User}>", true)
+                .AddField("Type", campaign.Type, true)
+                .AddField("Reason", campaign.Reason)
+                .AddField("Voting", reason ?? $"This campaign received {campaign.Minimal} votes and has thus been accepted.")
+                .WithColor(Colors.Success)
+                .Build();
+            return embed;
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="Embed"/> for a denied <see cref="Campaign"/>.
+        /// </summary>
+        /// <param name="campaign">The <see cref="Campaign"/> that the embed is made for.</param>
+        /// <param name="reason">An optional reason as per why the campaign was denied.</param>
+        /// <returns>An <see cref="Embed"/> for a denied <see cref="Campaign"/>.</returns>
+        public static Embed GetDeniedEmbed(Campaign campaign, string reason = null)
+        {
+            var embed = new EmbedBuilder()
+                .WithAuthor(x =>
+                {
+                    x
+                    .WithIconUrl(Icons.DeniedCampaign)
+                    .WithName("Denied campaign");
+                })
+                .AddField("Initiator", $"<@{campaign.Initiator}>", true)
+                .AddField("Member", $"<@{campaign.User}>", true)
+                .AddField("Type", campaign.Type, true)
+                .AddField("Reason", campaign.Reason)
+                .AddField("Voting", reason ?? $"This campaign was denied because it didn't receive enough votes within 24 hours.")
+                .WithColor(Colors.Error)
+                .Build();
+            return embed;
+        }
+
+        /// <summary>
         /// The command used to create new campaigns.
         /// </summary>
         /// <param name="user">The <see cref="SocketGuildUser"/> that the campaign is for.</param>
@@ -87,20 +161,7 @@
             int minimal = (int)Math.Ceiling(total / 2);
 
             var campaign = new Campaign() { User = user.Id, Initiator = this.Context.User.Id, Reason = response.Value.Content, Start = DateTime.Now, End = DateTime.Now + TimeSpan.FromDays(2), Type = type, Minimal = minimal };
-            var campaignEmbed = new EmbedBuilder()
-                .WithAuthor(x =>
-                {
-                    x
-                    .WithIconUrl(Icons.NewCampaign)
-                    .WithName("New campaign");
-                })
-                .AddField("Initiator", $"<@{campaign.Initiator}>", true)
-                .AddField("Member", $"<@{campaign.User}>", true)
-                .AddField("Type", campaign.Type, true)
-                .AddField("Reason", campaign.Reason)
-                .AddField("Voting", $"This campaign needs to receive {campaign.Minimal} votes in favour in order to succeed.")
-                .WithColor(Colors.Information)
-                .Build();
+            var campaignEmbed = GetCampaignEmbed(campaign);
 
             var requestChannelId = this.Configuration.GetSection("Channels").GetValue<ulong>("Campaigns");
             var vote = await this.Context.Guild.GetTextChannel(requestChannelId).SendMessageAsync(embed: campaignEmbed);
@@ -145,21 +206,7 @@
 
             try
             {
-                var accepted = new EmbedBuilder()
-                    .WithAuthor(x =>
-                    {
-                        x
-                        .WithIconUrl(Icons.AcceptedCampaign)
-                        .WithName("Accepted campaign");
-                    })
-                    .AddField("Initiator", $"<@{campaign.Initiator}>", true)
-                    .AddField("Member", $"<@{campaign.User}>", true)
-                    .AddField("Type", campaign.Type, true)
-                    .AddField("Reason", campaign.Reason)
-                    .AddField("Voting", "This campaign was accepted by an administrator.")
-                    .WithColor(Colors.Success)
-                    .Build();
-
+                var accepted = GetAcceptedEmbed(campaign, "This campaign was accepted by an administrator.");
                 var message = await this.Context.Guild.GetTextChannel(this.Configuration.GetSection("Channels").GetValue<ulong>("Campaigns")).GetMessageAsync(campaign.Message) as IUserMessage;
                 await message.ModifyAsync(x => x.Embed = accepted);
                 await message.RemoveAllReactionsAsync();
@@ -222,21 +269,7 @@
 
             try
             {
-                var denied = new EmbedBuilder()
-                    .WithAuthor(x =>
-                    {
-                        x
-                        .WithIconUrl(Icons.DeniedCampaign)
-                        .WithName("Denied campaign");
-                    })
-                    .AddField("Initiator", $"<@{campaign.Initiator}>", true)
-                    .AddField("Member", $"<@{campaign.User}>", true)
-                    .AddField("Type", campaign.Type, true)
-                    .AddField("Reason", campaign.Reason)
-                    .AddField("Voting", "This campaign was cancelled by an administrator.")
-                    .WithColor(Colors.Error)
-                    .Build();
-
+                var denied = GetDeniedEmbed(campaign, "This campaign was cancelled by an administrator.");
                 var message = await this.Context.Guild.GetTextChannel(this.Configuration.GetSection("Channels").GetValue<ulong>("Campaigns")).GetMessageAsync(campaign.Message) as IUserMessage;
                 await message.ModifyAsync(x => x.Embed = denied);
                 await message.RemoveAllReactionsAsync();

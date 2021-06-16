@@ -284,21 +284,7 @@
                     var msg = await this.client.GetGuild(this.configuration.GetValue<ulong>("Guild")).GetTextChannel(this.configuration.GetSection("Channels").GetValue<ulong>("Campaigns")).GetMessageAsync(campaign.Message) as IUserMessage;
                     if (msg != null)
                     {
-                        var denied = new EmbedBuilder()
-                            .WithAuthor(x =>
-                            {
-                                x
-                                .WithIconUrl(Icons.DeniedCampaign)
-                                .WithName("Denied campaign");
-                            })
-                            .AddField("Initiator", $"<@{campaign.Initiator}>", true)
-                            .AddField("Member", $"<@{campaign.User}>", true)
-                            .AddField("Type", campaign.Type, true)
-                            .AddField("Reason", campaign.Reason)
-                            .AddField("Voting", $"This campaign was denied because it didn't receive enough votes within 24 hours.")
-                            .WithColor(Colors.Error)
-                            .Build();
-
+                        var denied = CampaignsModule.GetDeniedEmbed(campaign);
                         await msg.ModifyAsync(x => x.Embed = denied);
                         await msg.RemoveAllReactionsAsync();
                     }
@@ -334,21 +320,7 @@
                 return;
             }
 
-            var accepted = new EmbedBuilder()
-                .WithAuthor(x =>
-                {
-                    x
-                    .WithIconUrl(Icons.AcceptedCampaign)
-                    .WithName("Accepted campaign");
-                })
-                .AddField("Initiator", $"<@{campaign.Initiator}>", true)
-                .AddField("Member", $"<@{campaign.User}>", true)
-                .AddField("Type", campaign.Type, true)
-                .AddField("Reason", campaign.Reason)
-                .AddField("Voting", $"This campaign received {campaign.Minimal} votes and has thus been accepted.")
-                .WithColor(Colors.Success)
-                .Build();
-
+            var accepted = CampaignsModule.GetAcceptedEmbed(campaign);
             await msg.ModifyAsync(x => x.Embed = accepted);
             await msg.RemoveAllReactionsAsync();
 
