@@ -31,5 +31,15 @@
         /// Gets or sets the <see cref="DbSet{TEntity}"/> containing all tags.
         /// </summary>
         public DbSet<Tag> Tags { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="DbSet{TEntity}"/> containing all infractions.
+        /// </summary>
+        public DbSet<Infraction> Infractions { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="DbSet{TEntity}"/> containing all the mutes.
+        /// </summary>
+        public DbSet<Mute> Mutes { get; set; }
     }
 }

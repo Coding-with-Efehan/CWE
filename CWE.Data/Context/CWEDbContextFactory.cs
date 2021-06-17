@@ -14,8 +14,9 @@
         /// <inheritdoc/>
         public CWEDbContext CreateDbContext(string[] args)
         {
+            var cwePath = @"C:\Users\lynch\source\repos\CWE\CWE";
             var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
+                .SetBasePath(cwePath)
                 .AddJsonFile("appsettings.json", false, true)
                 .Build();
 

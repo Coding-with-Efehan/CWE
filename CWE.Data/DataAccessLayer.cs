@@ -248,5 +248,78 @@
             tag.OwnerId = ownerId;
             await this.dbContext.SaveChangesAsync();
         }
+
+        /// <summary>
+        /// Creates an infraction.
+        /// </summary>
+        /// <param name="infraction">The infraction to be created</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task CreateInfraction(Infraction infraction)
+        {
+            if (this.dbContext.Infractions.Any(x => x.InfractionId == infraction.InfractionId))
+            {
+                return;
+            }
+
+            await this.dbContext.Infractions.AddAsync(infraction);
+        }
+
+        /// <summary>
+        /// Deletes an infraction with the specified id.
+        /// </summary>
+        /// <param name="infractionId">The infractions' id to delete</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task DeleteInfraction(Guid infractionId)
+        {
+            var infrac = await this.dbContext.Infractions.FirstOrDefaultAsync(x => x.InfractionId == infractionId);
+
+            if (infrac == null)
+            {
+                return;
+            }
+
+            this.dbContext.Infractions.Remove(infrac);
+        }
+
+        /// <summary>
+        /// Creates a mute.
+        /// </summary>
+        /// <param name="mute">The mute to create</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task CreateMute(Mute mute)
+        {
+            if (this.dbContext.Mutes.Any(x => mute.InfractionId == x.InfractionId))
+            {
+                return;
+            }
+
+            await this.dbContext.Mutes.AddAsync(mute);
+        }
+
+        /// <summary>
+        /// Removes a mute.
+        /// </summary>
+        /// <param name="user">The user whos mute to remove</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task DeleteMute(ulong user)
+        {
+            var mute = await this.dbContext.Mutes.FirstOrDefaultAsync(x => x.User == user);
+
+            if (mute == null)
+            {
+                return;
+            }
+
+            this.dbContext.Mutes.Remove(mute);
+        }
+
+        /// <summary>
+        /// Gets all current mutes.
+        /// </summary>
+        /// <returns>A list of the current mutes.</returns>
+        public async Task<List<Mute>> GetMutes()
+        {
+            return await this.dbContext.Mutes.ToListAsync();
+        }
     }
 }
