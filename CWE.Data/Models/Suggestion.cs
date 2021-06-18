@@ -13,12 +13,12 @@
         /// <summary>
         /// The suggestion has been accepted.
         /// </summary>
-        Accepted,
+        Approved,
 
         /// <summary>
         /// The suggestion has been rejected.
         /// </summary>
-        Reject,
+        Rejected,
     }
 
     /// <summary>

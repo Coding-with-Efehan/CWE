@@ -259,15 +259,16 @@
         /// <param name="initiator">The ID of the initiator.</param>
         /// <param name="messageId">The ID of the suggestion its message.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task CreateSuggestion(ulong initiator, ulong messageId)
+        public async Task<int> CreateSuggestion(ulong initiator, ulong messageId)
         {
-            this.dbContext.Add(new Suggestion
+            var entityEntry = this.dbContext.Add(new Suggestion
             {
                 Initiator = initiator,
                 MessageId = messageId,
             });
 
             await this.dbContext.SaveChangesAsync();
+            return entityEntry.Entity.Id;
         }
 
         /// <summary>
