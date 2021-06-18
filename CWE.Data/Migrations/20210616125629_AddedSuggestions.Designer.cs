@@ -3,14 +3,16 @@ using System;
 using CWE.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CWE.Data.Migrations
 {
     [DbContext(typeof(CWEDbContext))]
-    partial class CWEDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210616125629_AddedSuggestions")]
+    partial class AddedSuggestions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -9,6 +9,7 @@
     using CWE.Common;
     using CWE.Data;
     using CWE.Data.Models;
+    using CWE.Modules;
     using Discord;
     using Discord.Addons.Hosting;
     using Discord.Commands;
@@ -92,7 +93,7 @@
                         if (socketMessageComponent.Data.CustomId == "deny")
                         {
                             request.State = RequestState.Denied;
-                            var embed = Embeds.GetRequestEmbed(request);
+                            var embed = RequestsModule.GetRequestEmbed(request);
                             var component = new ComponentBuilder().Build();
 
                             await (socketMessageComponent.Message as IUserMessage).ModifyAsync(x =>
@@ -117,7 +118,7 @@
                         else
                         {
                             request.State = RequestState.Active;
-                            var embed = Embeds.GetRequestEmbed(request);
+                            var embed = RequestsModule.GetRequestEmbed(request);
                             var component = new ComponentBuilder()
                                 .WithButton("Finish", "finish", ButtonStyle.Success)
                                 .Build();
@@ -161,7 +162,7 @@
                         if (socketMessageComponent.Data.CustomId == "finish")
                         {
                             request.State = RequestState.Finished;
-                            var embed = Embeds.GetRequestEmbed(request);
+                            var embed = RequestsModule.GetRequestEmbed(request);
                             var component = new ComponentBuilder().Build();
 
                             await (socketMessageComponent.Message as IUserMessage).ModifyAsync(x =>
@@ -283,7 +284,7 @@
                     var msg = await this.client.GetGuild(this.configuration.GetValue<ulong>("Guild")).GetTextChannel(this.configuration.GetSection("Channels").GetValue<ulong>("Campaigns")).GetMessageAsync(campaign.Message) as IUserMessage;
                     if (msg != null)
                     {
-                        var denied = Embeds.GetDeniedEmbed(campaign);
+                        var denied = CampaignsModule.GetDeniedEmbed(campaign);
                         await msg.ModifyAsync(x => x.Embed = denied);
                         await msg.RemoveAllReactionsAsync();
                     }
@@ -319,7 +320,7 @@
                 return;
             }
 
-            var accepted = Embeds.GetAcceptedEmbed(campaign);
+            var accepted = CampaignsModule.GetAcceptedEmbed(campaign);
             await msg.ModifyAsync(x => x.Embed = accepted);
             await msg.RemoveAllReactionsAsync();
 
