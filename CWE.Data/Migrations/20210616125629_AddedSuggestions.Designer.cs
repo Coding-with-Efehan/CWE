@@ -3,14 +3,16 @@ using System;
 using CWE.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CWE.Data.Migrations
 {
     [DbContext(typeof(CWEDbContext))]
-    partial class CWEDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210616125629_AddedSuggestions")]
+    partial class AddedSuggestions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,55 +49,6 @@ namespace CWE.Data.Migrations
                     b.HasKey("User");
 
                     b.ToTable("Campaigns");
-                });
-
-            modelBuilder.Entity("CWE.Data.Models.Infraction", b =>
-                {
-                    b.Property<Guid>("InfractionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Reason")
-                        .HasColumnType("longtext");
-
-                    b.Property<ulong>("StaffId")
-                        .HasColumnType("bigint unsigned");
-
-                    b.Property<string>("StaffUsername")
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.Property<ulong>("UserId")
-                        .HasColumnType("bigint unsigned");
-
-                    b.Property<string>("Username")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("InfractionId");
-
-                    b.ToTable("Infractions");
-                });
-
-            modelBuilder.Entity("CWE.Data.Models.Mute", b =>
-                {
-                    b.Property<Guid>("InfractionId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("MuteEnd")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime>("MuteStart")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<ulong>("User")
-                        .HasColumnType("bigint unsigned");
-
-                    b.ToTable("Mutes");
                 });
 
             modelBuilder.Entity("CWE.Data.Models.Request", b =>
