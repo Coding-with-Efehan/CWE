@@ -58,6 +58,18 @@
         }
 
         /// <summary>
+        /// Get the username and tag of a user.
+        ///
+        /// <para>Example: Directoire#0001.</para>
+        /// </summary>
+        /// <param name="socketUser">The <see cref="SocketUser"/> to get the username and tag from.</param>
+        /// <returns>The username and tag of a user.</returns>
+        public static string GetUsernameAndTag(this SocketUser socketUser)
+        {
+            return socketUser.Username + "#" + socketUser.Discriminator;
+        }
+
+        /// <summary>
         /// Makes a <see cref="EmbedAuthorBuilder"/> from a <see cref="IUser"/>.
         /// </summary>
         /// <param name="user">The user to make an <see cref="EmbedAuthorBuilder"/> from</param>

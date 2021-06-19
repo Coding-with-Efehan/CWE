@@ -140,7 +140,12 @@
             }
             else
             {
-                await this.ReplyAsync(embed: Embeds.GetErrorEmbed("Action failed", $"Failed to {type} {user}"));
+                var errorEmbed = new CWEEmbedBuilder()
+                    .WithStyle(EmbedStyle.Error)
+                    .WithTitle("Action failed")
+                    .WithDescription($"Failed to {type} {user}");
+
+                await this.ReplyAsync(embed: errorEmbed.Build());
             }
         }
 

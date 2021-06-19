@@ -35,7 +35,7 @@
         /// <param name="filter">The <see cref="Predicate{SocketMessageComponent}"/> which the component has to pass.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel the request.</param>
         /// <returns>The <see cref="SocketMessageComponent"/> that matches the provided filter.</returns>
-        public static async Task<SocketMessageComponent> NextButtonAsync(Predicate<SocketMessageComponent> filter = null, CancellationToken cancellationToken = default)
+        public async Task<SocketMessageComponent> NextButtonAsync(Predicate<SocketMessageComponent> filter = null, CancellationToken cancellationToken = default)
         {
             filter ??= m => true;
 

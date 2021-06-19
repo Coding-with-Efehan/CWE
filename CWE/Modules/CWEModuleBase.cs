@@ -45,11 +45,11 @@
         /// <param name="configuration">The <see cref="IConfiguration"/> to be injected.</param>
         /// <param name="interactivityService">The <see cref="InteractivityService"/> to be injected.</param>
         /// <param name="interactionService">The <see cref="InteractionService"/> to be injected.</param>
-        protected CWEModuleBase(IServiceProvider serviceProvider, IConfiguration configuration, InteractivityService interactivityService, InteractionService interactionService)
+        protected CWEModuleBase(IServiceProvider serviceProvider, IConfiguration configuration, InteractivityService interactivityService)
         {
             this.scope = serviceProvider.CreateScope();
             this.DataAccessLayer = this.scope.ServiceProvider.GetRequiredService<DataAccessLayer>();
-            this.Interactions = interactionService;
+            this.Interactions = serviceProvider.GetRequiredService<InteractionService>();
             this.Configuration = configuration;
             this.Interactivity = interactivityService;
         }
