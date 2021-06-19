@@ -1,23 +1,31 @@
-﻿using CWE.Common;
-using CWE.Data.Models;
-using CWE.Handlers;
-using CWE.Services;
-using Discord;
-using Discord.Commands;
-using Discord.WebSocket;
-using Interactivity;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CWE.Modules
+﻿namespace CWE.Modules
 {
+    using System;
+    using System.Threading.Tasks;
+    using CWE.Common;
+    using CWE.Data.Models;
+    using CWE.Handlers;
+    using CWE.Services;
+    using Discord;
+    using Discord.Commands;
+    using Discord.WebSocket;
+    using Interactivity;
+    using Microsoft.Extensions.Configuration;
+
     public class Moderation : CWEModuleBase
     {
         private ModerationHandler modHandler;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Moderation"/> class.
+        /// </summary>
+        /// <param name="serviceProvider">The <see cref="IServiceProvider"/> to inject.</param>
+        /// <param name="configuration">The <see cref="IConfiguration"/> to inject.</param>
+        /// <param name="interactivityService">The <see cref="InteractivityService"/> to inject.</param>
+        public Moderation(IServiceProvider serviceProvider, IConfiguration configuration, InteractivityService interactivityService)
+                : base(serviceProvider, configuration, interactivityService)
+        {
+        }
 
         private ModerationHandler ModerationHandler
         {
@@ -30,17 +38,6 @@ namespace CWE.Modules
 
                 return this.modHandler;
             }
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Moderation"/> class.
-        /// </summary>
-        /// <param name="serviceProvider">The <see cref="IServiceProvider"/> to inject.</param>
-        /// <param name="configuration">The <see cref="IConfiguration"/> to inject.</param>
-        /// <param name="interactivityService">The <see cref="InteractivityService"/> to inject.</param>
-        public Moderation(IServiceProvider serviceProvider, IConfiguration configuration, InteractivityService interactivityService)
-                : base(serviceProvider, configuration, interactivityService)
-        {
         }
 
         /// <summary>
@@ -124,6 +121,13 @@ namespace CWE.Modules
         {
             var timespan = duration.ToTimespan();
             return this.ExecuteActionInternal(user, reason, InfractionType.Mute);
+        }
+
+        [RequireStaff]
+        [Command("infractions")]
+        public async Task Infractions(SocketGuildUser user)
+        {
+
         }
 
         private async Task ExecuteActionInternal(SocketGuildUser user, string reason, InfractionType type, TimeSpan? time = null)

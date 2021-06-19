@@ -5,8 +5,12 @@
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Discord;
     using Discord.WebSocket;
+    using Interactivity;
+    using Interactivity.Pagination;
     using Microsoft.Extensions.Configuration;
 
     /// <summary>
@@ -143,6 +147,11 @@
             }
 
             return t;
+        }
+
+        public static async Task SendButtonPaginatorAsync(this InteractivityService service, Paginator paginator, IMessageChannel channel, TimeSpan? timeout = null, IUserMessage message = null, bool? runOnGateway = null, CancellationToken cancellationToken = default)
+        {
+
         }
     }
 }

@@ -1,8 +1,11 @@
 ﻿namespace CWE.Modules
 {
     using System;
+    using System.Threading.Tasks;
     using CWE.Data;
+    using CWE.Services;
     using Discord.Commands;
+    using Discord.WebSocket;
     using Interactivity;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +27,11 @@
         public readonly InteractivityService Interactivity;
 
         /// <summary>
+        /// The <see cref="InteractivityService"/> used for interactions.
+        /// </summary>
+        public readonly InteractionService Interactions;
+
+        /// <summary>
         /// The <see cref="IConfiguration"/> of CWE.
         /// </summary>
         public readonly IConfiguration Configuration;
@@ -36,11 +44,12 @@
         /// <param name="serviceProvider">The <see cref="IServiceProvider"/> to be injected.</param>
         /// <param name="configuration">The <see cref="IConfiguration"/> to be injected.</param>
         /// <param name="interactivityService">The <see cref="InteractivityService"/> to be injected.</param>
-        protected CWEModuleBase(IServiceProvider serviceProvider, IConfiguration configuration, InteractivityService interactivityService)
+        /// <param name="interactionService">The <see cref="InteractionService"/> to be injected.</param>
+        protected CWEModuleBase(IServiceProvider serviceProvider, IConfiguration configuration, InteractivityService interactivityService, InteractionService interactionService)
         {
             this.scope = serviceProvider.CreateScope();
             this.DataAccessLayer = this.scope.ServiceProvider.GetRequiredService<DataAccessLayer>();
-
+            this.Interactions = interactionService;
             this.Configuration = configuration;
             this.Interactivity = interactivityService;
         }
