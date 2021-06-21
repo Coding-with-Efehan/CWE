@@ -67,7 +67,7 @@
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         [Command("tag")]
         [Alias("t")]
-        public async Task TagAsync([Remainder] string argument)
+        public async Task Tag([Remainder] string argument)
         {
             var arguments = argument.Split(" ");
 
