@@ -32,7 +32,7 @@
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         [Command("tags")]
-        public async Task GetTags()
+        public async Task Tags()
         {
             var tags = await this.DataAccessLayer.GetTags();
 
