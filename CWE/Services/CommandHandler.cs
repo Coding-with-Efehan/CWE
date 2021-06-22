@@ -306,11 +306,10 @@
 
             var campaign = campaigns.FirstOrDefault(x => x.Message == arg3.MessageId);
 
-            if (arg3.UserId == campaign.Initiator)
+            if (arg3.UserId == campaign.Initiator || arg3.UserId == campaign.User)
             {
                 return;
             }
-
             var msg = await arg3.Channel.GetMessageAsync(campaign.Message) as IUserMessage;
 
             int current = msg.Reactions.FirstOrDefault(x => x.Key.Name == "✅").Value.ReactionCount;
