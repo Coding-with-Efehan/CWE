@@ -96,16 +96,17 @@ namespace CWE.Data.Migrations
                         .HasColumnType("bigint unsigned");
 
                     b.ToTable("Mutes");
-            modelBuilder.Entity("CWE.Data.Models.Rank", b =>
-                {
-                    b.Property<ulong>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint unsigned");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Ranks");
                 });
+            modelBuilder.Entity("CWE.Data.Models.Rank", b =>
+                        {
+                            b.Property<ulong>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("bigint unsigned");
+
+                            b.HasKey("Id");
+
+                            b.ToTable("Ranks");
+                        });
 
             modelBuilder.Entity("CWE.Data.Models.Request", b =>
                 {
@@ -170,6 +171,7 @@ namespace CWE.Data.Migrations
                     b.ToTable("Tags");
                 });
 #pragma warning restore 612, 618
+
         }
     }
 }
