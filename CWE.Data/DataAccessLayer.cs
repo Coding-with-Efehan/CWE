@@ -309,5 +309,53 @@
             this.dbContext.Remove(suggestion);
             await this.dbContext.SaveChangesAsync();
         }
+
+        /// <summary>
+        /// Create a rank.
+        /// </summary>
+        /// <param name="id">The ID of the rank.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task CreateRank(ulong id)
+        {
+            var rank = await this.dbContext.Ranks
+                .FindAsync(id);
+
+            if (rank != null)
+            {
+                return;
+            }
+
+            this.dbContext.Add(new Rank { Id = id });
+            await this.dbContext.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Get all ranks.
+        /// </summary>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation.</returns>
+        public async Task<IEnumerable<Rank>> GetRanks()
+        {
+            return await this.dbContext.Ranks
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Delete a rank.
+        /// </summary>
+        /// <param name="id">The ID of the rank.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task DeleteRank(ulong id)
+        {
+            var rank = await this.dbContext.Ranks
+                .FindAsync(id);
+
+            if (rank == null)
+            {
+                return;
+            }
+
+            this.dbContext.Remove(rank);
+            await this.dbContext.SaveChangesAsync();
+        }
     }
 }

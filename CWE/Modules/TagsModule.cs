@@ -32,7 +32,7 @@
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         [Command("tags")]
-        public async Task GetTags()
+        public async Task Tags()
         {
             var tags = await this.DataAccessLayer.GetTags();
 
@@ -67,7 +67,7 @@
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         [Command("tag")]
         [Alias("t")]
-        public async Task TagAsync([Remainder] string argument)
+        public async Task Tag([Remainder] string argument)
         {
             var arguments = argument.Split(" ");
 

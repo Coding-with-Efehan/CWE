@@ -36,5 +36,10 @@
         /// Gets or sets the <see cref="DbSet{TEntity}"/> containing all tags.
         /// </summary>
         public DbSet<Tag> Tags { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="DbSet{TEntity}"/> containing all ranks.
+        /// </summary>
+        public DbSet<Rank> Ranks { get; set; }
     }
 }
