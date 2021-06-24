@@ -22,7 +22,6 @@
     {
         private DiscordSocketClient client;
         private DataAccessLayer dataAccessLayer;
-        private InteractionService interactionService;
         private IConfiguration configuration;
         private Timer muteTimer;
 
@@ -35,7 +34,7 @@
             => this.configuration.GetSection("Roles").GetValue<ulong>("Muted");
 
         private ulong LogChannelId
-            => this.configuration.GetValue<ulong>("LogChannel");
+            => this.configuration.GetSection("Channels").GetValue<ulong>("LogChannel");
 
         private SocketGuild Guild
             => this.client.GetGuild(this.GuildId);
@@ -72,7 +71,6 @@
         {
             this.client = client;
             this.configuration = configuration;
-            this.interactionService = serviceProvider.GetRequiredService<InteractionService>();
             this.dataAccessLayer = serviceProvider.GetRequiredService<DataAccessLayer>();
             this.muteTimer = new (60000);
             this.muteTimer.Elapsed += this.HandleElapsed;
