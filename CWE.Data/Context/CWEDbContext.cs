@@ -46,5 +46,10 @@
         /// Gets or sets the <see cref="DbSet{TEntity}"/> containing all the mutes.
         /// </summary>
         public DbSet<Mute> Mutes { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="DbSet{TEntity}"/> containing all ranks.
+        /// </summary>
+        public DbSet<Rank> Ranks { get; set; }
     }
 }
