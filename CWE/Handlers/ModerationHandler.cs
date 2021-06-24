@@ -22,6 +22,7 @@
     {
         private DiscordSocketClient client;
         private DataAccessLayer dataAccessLayer;
+        private InteractionService interactionService;
         private IConfiguration configuration;
         private Timer muteTimer;
 
@@ -33,23 +34,61 @@
         private ulong MutedRoleId
             => this.configuration.GetSection("Roles").GetValue<ulong>("Muted");
 
+        private ulong LogChannelId
+            => this.configuration.GetValue<ulong>("LogChannel");
+
         private SocketGuild Guild
             => this.client.GetGuild(this.GuildId);
 
         private SocketRole MutedRole
             => this.Guild.GetRole(this.MutedRoleId);
 
+        private SocketTextChannel LogChannel
+            => this.Guild.GetTextChannel(this.LogChannelId);
+
+        /// <summary>
+        /// Formats an <see cref="InfractionType"/> to a user friendly string.
+        /// </summary>
+        /// <param name="type">The infraction type to convert.</param>
+        /// <returns>A readable string representing the infraction type.</returns>
+        public static string FormatType(InfractionType type)
+        {
+            switch (type)
+            {
+                case InfractionType.Ban:
+                    return "Banned";
+                case InfractionType.Kick:
+                    return "Kicked";
+                case InfractionType.Mute:
+                    return "Muted";
+                case InfractionType.Warn:
+                    return "Warned";
+                default: return "Unknown";
+            }
+        }
+
         /// <inheritdoc/>
         public override async Task InitializeAsync(DiscordSocketClient client, IServiceProvider serviceProvider, IConfiguration configuration)
         {
             this.client = client;
             this.configuration = configuration;
+            this.interactionService = serviceProvider.GetRequiredService<InteractionService>();
             this.dataAccessLayer = serviceProvider.GetRequiredService<DataAccessLayer>();
             this.muteTimer = new (60000);
             this.muteTimer.Elapsed += this.HandleElapsed;
             this.muteTimer.Start();
 
             this.muteCache = await this.dataAccessLayer.GetMutes();
+
+            this.client.InteractionCreated += (SocketInteraction arg) =>
+            {
+                if (arg is SocketMessageComponent comp)
+                {
+                    return this.HandleUnmuteRequest(comp);
+                }
+
+                return Task.CompletedTask;
+            };
         }
 
         /// <summary>
@@ -97,6 +136,15 @@
                         return false;
                     }
 
+                    var user = this.Guild.GetUser(target);
+
+                    if (user == null)
+                    {
+                        return false;
+                    }
+
+                    await user.AddRoleAsync(this.MutedRole);
+
                     var mute = new Mute()
                     {
                         InfractionId = infrac.InfractionId,
@@ -112,6 +160,7 @@
                     return true;
             }
 
+            this.DispatchModeratorLog(infrac);
             return true;
         }
 
@@ -165,6 +214,99 @@
             }
             catch
             {
+            }
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1025:Code should not contain multiple whitespace in a row", Justification = "Easier to read.")]
+        private void DispatchModeratorLog(Infraction infraction)
+        {
+            if (this.LogChannel == null)
+            {
+                return;
+            }
+
+            _ = Task.Run(async () =>
+            {
+                var user = this.client.GetUser(infraction.UserId);
+                var author = user?.GetAuthorEmbed() ?? new EmbedAuthorBuilder().WithName(infraction.Username);
+
+                var embed = new EmbedBuilder()
+                    .WithColor(infraction.Type == InfractionType.Ban ? Color.Red
+                             : infraction.Type == InfractionType.Kick ? Color.Orange
+                             : infraction.Type == InfractionType.Mute ? Color.Blue
+                             : infraction.Type == InfractionType.Warn ? Color.Green
+                             : Color.Teal)
+                    .WithAuthor(author)
+                    .WithDescription($"The user <@{infraction.UserId}> has been {FormatType(infraction.Type)}");
+
+                embed.Fields = new List<EmbedFieldBuilder>()
+                {
+                    new EmbedFieldBuilder()
+                    {
+                        Name = "Reason",
+                        Value = infraction.Reason,
+                    },
+                    new EmbedFieldBuilder()
+                    {
+                        Name = "Staff member",
+                        Value = $"{infraction.StaffUsername} (<@{infraction.StaffId}>)",
+                    },
+                };
+
+                MessageComponent comp = null;
+
+                if (infraction.Type == InfractionType.Mute)
+                {
+                    comp = new ComponentBuilder()
+                        .WithButton($"Unmute {infraction.Username}", $"unmute_{infraction.UserId}", ButtonStyle.Danger)
+                        .Build();
+
+                    var mute = this.muteCache.FirstOrDefault(x => x.InfractionId == infraction.InfractionId);
+
+                    if (mute != null)
+                    {
+                        embed.AddField("Mute duration", (mute.MuteEnd - mute.MuteStart).ToReadableFormat());
+                    }
+                }
+
+                await this.LogChannel.SendMessageAsync(embed: embed.Build(), component: comp);
+            });
+        }
+
+        private async Task HandleUnmuteRequest(SocketMessageComponent component)
+        {
+            if (!component.Data.CustomId.StartsWith("unmute_"))
+            {
+                return;
+            }
+
+            var guildUser = this.Guild.GetUser(component.User.Id);
+
+            if (guildUser == null)
+            {
+                return;
+            }
+
+            var staffRoleId = this.configuration.GetSection("Roles").GetValue<ulong>("Staff");
+
+            if (!guildUser.Roles.Any(x => x.Id == staffRoleId))
+            {
+                return;
+            }
+
+            var targetUserId = ulong.Parse(component.Data.CustomId.Replace("unmute_", string.Empty));
+            var targetGuildUser = this.Guild.GetUser(targetUserId);
+
+            await this.dataAccessLayer.DeleteMute(targetUserId);
+
+            if (targetGuildUser == null)
+            {
+                return;
+            }
+
+            if (targetGuildUser.Roles.Any(x => x.Id == this.MutedRoleId))
+            {
+                await targetGuildUser.RemoveRoleAsync(this.MutedRole);
             }
         }
     }

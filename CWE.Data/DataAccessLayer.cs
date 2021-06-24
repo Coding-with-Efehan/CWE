@@ -345,6 +345,17 @@
         }
 
         /// <summary>
+        /// Gets all the infractions for a specified user.
+        /// </summary>
+        /// <param name="userId">The user to get the infractions for.</param>
+        /// <returns>A <see cref="IReadOnlyCollection{T}"/> containing all the infractions.</returns>
+        public async Task<IReadOnlyCollection<Infraction>> GetUserInfractions(ulong userId)
+        {
+            var infracs = this.dbContext.Infractions.Where(x => x.UserId == userId);
+            return await infracs.ToListAsync();
+        }
+
+        /// <summary>
         /// Creates a mute.
         /// </summary>
         /// <param name="mute">The mute to create</param>

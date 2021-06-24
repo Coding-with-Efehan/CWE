@@ -1,6 +1,8 @@
 ﻿namespace CWE.Modules
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using CWE.Common;
     using CWE.Data.Models;
@@ -10,6 +12,7 @@
     using Discord.Commands;
     using Discord.WebSocket;
     using Interactivity;
+    using Interactivity.Pagination;
     using Microsoft.Extensions.Configuration;
 
     public class Moderation : CWEModuleBase
@@ -54,7 +57,7 @@
         {
             return new EmbedBuilder()
                 .WithAuthor(target.GetAuthorEmbed())
-                .WithTitle($"Successfully {this.FormatType(type)} {target}")
+                .WithTitle($"Successfully {ModerationHandler.FormatType(type)} {target}")
                 .WithFields(
                     new EmbedFieldBuilder()
                         .WithIsInline(true)
@@ -117,17 +120,58 @@
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [RequireStaff]
         [Command("mute", RunMode = RunMode.Async)]
-        public Task Mute(SocketGuildUser user, string duration, [Remainder] string reason)
+        public async Task Mute(SocketGuildUser user, string duration, [Remainder] string reason)
         {
-            var timespan = duration.ToTimespan();
-            return this.ExecuteActionInternal(user, reason, InfractionType.Mute);
+            TimeSpan timespan;
+
+            try
+            {
+                timespan = duration.ToTimespan();
+            }
+            catch
+            {
+                var errorEmbed = new CWEEmbedBuilder()
+                    .WithStyle(EmbedStyle.Error)
+                    .WithTitle("Invalid Timespan")
+                    .WithDescription($"Please enter a valid timespan, ex: 1h15m");
+
+                await this.ReplyAsync(embed: errorEmbed.Build());
+                return;
+            }
+
+            await this.ExecuteActionInternal(user, reason, InfractionType.Mute);
         }
 
         [RequireStaff]
         [Command("infractions")]
         public async Task Infractions(SocketGuildUser user)
         {
+            var infracs = await this.DataAccessLayer.GetUserInfractions(user.Id);
 
+            var paginator = new LazyPaginatorBuilder()
+                .WithUsers(this.Context.User)
+                .WithMaxPageIndex((int)Math.Ceiling(infracs.Count / 20d))
+                .WithPageFactory((page) =>
+                {
+                    List<EmbedFieldBuilder> fields = new List<EmbedFieldBuilder>();
+
+                    foreach (var item in infracs.Skip(20 * page).Take(20))
+                    {
+                        fields.Add(new EmbedFieldBuilder()
+                            .WithName(ModerationHandler.FormatType(item.Type))
+                            .WithValue($"Date: {item.Date}\n" +
+                                       $"Reason: {item.Reason}\n" +
+                                       $"Staff member: {item.StaffUsername}\n" +
+                                       $"Id: {item.InfractionId}"));
+                    }
+
+                    return Task.FromResult(new PageBuilder()
+                        .WithColor(Color.Green)
+                        .WithFields(fields)
+                        .WithTitle($"{user}'s infractions"));
+                });
+
+            await this.Interactivity.SendPaginatorAsync(paginator.Build(), this.Context.Channel);
         }
 
         private async Task ExecuteActionInternal(SocketGuildUser user, string reason, InfractionType type, TimeSpan? time = null)
@@ -146,22 +190,6 @@
                     .WithDescription($"Failed to {type} {user}");
 
                 await this.ReplyAsync(embed: errorEmbed.Build());
-            }
-        }
-
-        private string FormatType(InfractionType type)
-        {
-            switch (type)
-            {
-                case InfractionType.Ban:
-                    return "Banned";
-                case InfractionType.Kick:
-                    return "Kicked";
-                case InfractionType.Mute:
-                    return "Muted";
-                case InfractionType.Warn:
-                    return "Warned";
-                default: return "Unknown";
             }
         }
     }

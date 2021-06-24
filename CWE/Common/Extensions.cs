@@ -92,7 +92,7 @@
         {
             List<string> formats = new List<string>();
 
-            if(time.Days > 0)
+            if (time.Days > 0)
             {
                 formats.Add($"{time.Days} days");
             }
@@ -159,11 +159,6 @@
             }
 
             return t;
-        }
-
-        public static async Task SendButtonPaginatorAsync(this InteractivityService service, Paginator paginator, IMessageChannel channel, TimeSpan? timeout = null, IUserMessage message = null, bool? runOnGateway = null, CancellationToken cancellationToken = default)
-        {
-
         }
     }
 }
