@@ -15,17 +15,17 @@
     using Interactivity.Pagination;
     using Microsoft.Extensions.Configuration;
 
-    public class Moderation : CWEModuleBase
+    public class ModerationModule : CWEModuleBase
     {
         private ModerationHandler modHandler;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Moderation"/> class.
+        /// Initializes a new instance of the <see cref="ModerationModule"/> class.
         /// </summary>
         /// <param name="serviceProvider">The <see cref="IServiceProvider"/> to inject.</param>
         /// <param name="configuration">The <see cref="IConfiguration"/> to inject.</param>
         /// <param name="interactivityService">The <see cref="InteractivityService"/> to inject.</param>
-        public Moderation(IServiceProvider serviceProvider, IConfiguration configuration, InteractivityService interactivityService)
+        public ModerationModule(IServiceProvider serviceProvider, IConfiguration configuration, InteractivityService interactivityService)
                 : base(serviceProvider, configuration, interactivityService)
         {
         }
@@ -142,6 +142,11 @@
             await this.ExecuteActionInternal(user, reason, InfractionType.Mute);
         }
 
+        /// <summary>
+        /// Gets a users' infractions.
+        /// </summary>
+        /// <param name="user">The user whos infractions will be displayed.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [RequireStaff]
         [Command("infractions")]
         public async Task Infractions(SocketGuildUser user)
