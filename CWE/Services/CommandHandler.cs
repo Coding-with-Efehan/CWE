@@ -313,7 +313,8 @@
 
             var msg = await arg3.Channel.GetMessageAsync(campaign.Message) as IUserMessage;
 
-            int current = msg.Reactions.FirstOrDefault(x => x.Key.Name == "✅").Value.ReactionCount;
+            var users = await msg.GetReactionUsersAsync(new Emoji("✅"), 100).FlattenAsync();
+            var current = users.Where(x => x.Id != campaign.Initiator).Count();
 
             if (current < campaign.Minimal)
             {
