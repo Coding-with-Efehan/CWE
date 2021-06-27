@@ -368,7 +368,44 @@
                 return;
             }
 
-            await context.Channel.SendMessageAsync($"Error: {result}");
+            string title = string.Empty;
+            string description = string.Empty;
+
+            switch (result.Error)
+            {
+                case CommandError.BadArgCount:
+                    title = "Invalid use of command";
+                    description = "Please provide the correct amount of parameters.";
+                    break;
+                case CommandError.MultipleMatches:
+                    title = "Invalid argument";
+                    description = "Please provide a valid argument.";
+                    break;
+                case CommandError.ObjectNotFound:
+                    title = "Not found";
+                    description = "The argument that was provided could not be found.";
+                    break;
+                case CommandError.ParseFailed:
+                    title = "Invalid argument";
+                    description = "The argument that you provided could not be parsed correctly.";
+                    break;
+                case CommandError.UnmetPrecondition:
+                    title = "Access denied";
+                    description = "You or the bot does not meet the required preconditions.";
+                    break;
+                default:
+                    title = "An error occurred";
+                    description = "An error occurred while trying to run this command.";
+                    break;
+            }
+
+            var error = new CWEEmbedBuilder()
+                .WithTitle(title)
+                .WithDescription(description)
+                .WithStyle(EmbedStyle.Error)
+                .Build();
+
+            await context.Channel.SendMessageAsync(embed: error);
         }
     }
 }
