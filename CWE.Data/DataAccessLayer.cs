@@ -357,5 +357,53 @@
             this.dbContext.Remove(rank);
             await this.dbContext.SaveChangesAsync();
         }
+
+        /// <summary>
+        /// Create an auto-role.
+        /// </summary>
+        /// <param name="id">The ID of the auto-role.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task CreateAutoRole(ulong id)
+        {
+            var autoRole = await this.dbContext.AutoRoles
+                .FindAsync(id);
+
+            if (autoRole != null)
+            {
+                return;
+            }
+
+            this.dbContext.Add(new AutoRole { Id = id });
+            await this.dbContext.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Get all auto-roles.
+        /// </summary>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation.</returns>
+        public async Task<IEnumerable<AutoRole>> GetAutoRoles()
+        {
+            return await this.dbContext.AutoRoles
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Delete an auto-role.
+        /// </summary>
+        /// <param name="id">The ID of the auto-role.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task DeleteAutoRole(ulong id)
+        {
+            var autoRole = await this.dbContext.AutoRoles
+                .FindAsync(id);
+
+            if (autoRole == null)
+            {
+                return;
+            }
+
+            this.dbContext.Remove(autoRole);
+            await this.dbContext.SaveChangesAsync();
+        }
     }
 }

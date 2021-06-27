@@ -41,5 +41,10 @@
         /// Gets or sets the <see cref="DbSet{TEntity}"/> containing all ranks.
         /// </summary>
         public DbSet<Rank> Ranks { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="DbSet{TEntity}"/> containing all auto-roles.
+        /// </summary>
+        public DbSet<AutoRole> AutoRoles { get; set; }
     }
 }

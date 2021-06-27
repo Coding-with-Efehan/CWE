@@ -13,38 +13,38 @@
     using Microsoft.Extensions.Configuration;
 
     /// <summary>
-    /// The ranks module, used to assign and remove ranks from users and manage existing ranks.
+    /// The auto-roles module, used to manage roles that are automatically added to new members.
     /// </summary>
-    [Name("Ranks")]
-    public class RanksModule : CWEModuleBase
+    [Name("AutoRoles")]
+    public class AutoRolesModule : CWEModuleBase
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="RanksModule"/> class.
+        /// Initializes a new instance of the <see cref="AutoRolesModule"/> class.
         /// </summary>
         /// <param name="serviceProvider">The <see cref="IServiceProvider"/> to inject.</param>
         /// <param name="configuration">The <see cref="IConfiguration"/> to inject.</param>
         /// <param name="interactivityService">The <see cref="InteractivityService"/> to inject.</param>
-        public RanksModule(IServiceProvider serviceProvider, IConfiguration configuration, InteractivityService interactivityService)
+        public AutoRolesModule(IServiceProvider serviceProvider, IConfiguration configuration, InteractivityService interactivityService)
                 : base(serviceProvider, configuration, interactivityService)
         {
         }
 
         /// <summary>
-        /// The command used to get all tags.
+        /// The command used to get all auto-roles.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        [Command("ranks")]
-        public async Task Ranks()
+        [Command("autoroles")]
+        public async Task AutoRoles()
         {
-            var ranks = await this.DataAccessLayer.GetRanks();
+            var autoRoles = await this.DataAccessLayer.GetAutoRoles();
             var roles = new List<IRole>();
             var guild = this.Context.Client.GetGuild(this.Configuration.GetValue<ulong>("Guild"));
-            foreach (var rank in ranks)
+            foreach (var autoRole in autoRoles)
             {
-                var role = guild.GetRole(rank.Id);
+                var role = guild.GetRole(autoRole.Id);
                 if (role == null)
                 {
-                    await this.DataAccessLayer.DeleteRank(rank.Id);
+                    await this.DataAccessLayer.DeleteAutoRole(autoRole.Id);
                     continue;
                 }
 
@@ -54,8 +54,8 @@
             if (roles.Count() == 0)
             {
                 var noRanks = new CWEEmbedBuilder()
-                    .WithTitle("No ranks found")
-                    .WithDescription("This server doesn't have ranks yet.")
+                    .WithTitle("No auto-roles found")
+                    .WithDescription("This server doesn't have auto-roles yet.")
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
@@ -66,9 +66,8 @@
             string description = string.Join("\n", roles.Select(x => x.Name));
 
             var list = new CWEEmbedBuilder()
-                    .WithTitle($"Ranks ({roles.Count()})")
+                    .WithTitle($"Auto-roles ({roles.Count()})")
                     .WithDescription(description)
-                    .WithFooter($"Use \"{this.Configuration.GetValue<string>("Prefix")}r name\" to join a rank")
                     .WithStyle(EmbedStyle.Information)
                     .Build();
 
@@ -76,23 +75,22 @@
         }
 
         /// <summary>
-        /// The command used to create and delete ranks.
+        /// The command used to create and delete auto-roles.
         /// </summary>
         /// <param name="argument">A string argument that is later converted to an array of strings.</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        [Command("rank")]
-        [Alias("r")]
+        [Command("autorole")]
         public async Task Rank([Remainder] string argument)
         {
-            var ranks = await this.DataAccessLayer.GetRanks();
+            var autoRoles = await this.DataAccessLayer.GetAutoRoles();
             var roles = new List<IRole>();
             var socketGuildUser = this.Context.User as SocketGuildUser;
-            foreach (var currentRank in ranks)
+            foreach (var current in autoRoles)
             {
-                var currentRole = this.Context.Guild.GetRole(currentRank.Id);
+                var currentRole = this.Context.Guild.GetRole(current.Id);
                 if (currentRole == null)
                 {
-                    await this.DataAccessLayer.DeleteRank(currentRank.Id);
+                    await this.DataAccessLayer.DeleteRank(current.Id);
                     continue;
                 }
 
@@ -101,38 +99,16 @@
 
             var arguments = argument.Split(" ");
 
-            var rank = roles.FirstOrDefault(x => x.Name.ToLower() == arguments[0].ToLower());
-            if (arguments.Count() == 1 && arguments[0] != "add" && arguments[0] != "delete")
+            var autoRole = roles.FirstOrDefault(x => x.Name.ToLower() == arguments[0].ToLower());
+            if (arguments[0] != "add" && arguments[0] != "delete")
             {
-                if (rank == null)
-                {
-                    var embed = new CWEEmbedBuilder()
-                        .WithTitle("Not found")
-                        .WithDescription("The rank you requested could not be found.")
-                        .WithStyle(EmbedStyle.Error)
-                        .Build();
-
-                    await this.Context.Channel.SendMessageAsync(embed: embed);
-                    return;
-                }
-
-                var join = !socketGuildUser.Roles.Contains(rank);
-                if (join)
-                {
-                    await socketGuildUser.AddRoleAsync(rank);
-                }
-                else
-                {
-                    await socketGuildUser.RemoveRoleAsync(rank);
-                }
-
-                var success = new CWEEmbedBuilder()
-                    .WithTitle($"{(join ? "Joined" : "Left")} rank")
-                    .WithDescription($"You have successfully {(join ? "joined" : "left")} {rank.Name}.")
+                var error = new CWEEmbedBuilder()
+                    .WithTitle($"Invalid argument")
+                    .WithDescription($"Please provide a proper argument for this command.")
                     .WithStyle(EmbedStyle.Success)
                     .Build();
 
-                await this.Context.Channel.SendMessageAsync(embed: success);
+                await this.Context.Channel.SendMessageAsync(embed: error);
                 return;
             }
 
@@ -152,11 +128,11 @@
             switch (arguments[0])
             {
                 case "add":
-                    if (ranks.Any(x => x.Id == role.Id))
+                    if (autoRoles.Any(x => x.Id == role.Id))
                     {
                         var embed = new CWEEmbedBuilder()
                             .WithTitle("Already exists")
-                            .WithDescription("There already exists a rank with that name.")
+                            .WithDescription("There already exists an auto-role with that name.")
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
@@ -168,7 +144,7 @@
                     {
                         var embed = new CWEEmbedBuilder()
                             .WithTitle("Access denied")
-                            .WithDescription("You need to be an administrator in order to create ranks.")
+                            .WithDescription("You need to be an administrator in order to create auto-roles.")
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
@@ -176,21 +152,21 @@
                         return;
                     }
 
-                    await this.DataAccessLayer.CreateRank(role.Id);
+                    await this.DataAccessLayer.CreateAutoRole(role.Id);
                     var created = new CWEEmbedBuilder()
-                            .WithTitle("Rank created")
-                            .WithDescription($"The rank \"{role.Name}\" has been created.")
+                            .WithTitle("Auto-role created")
+                            .WithDescription($"The auto-role \"{role.Name}\" has been created.")
                             .WithStyle(EmbedStyle.Success)
                             .Build();
 
                     await this.Context.Channel.SendMessageAsync(embed: created);
                     break;
                 case "delete":
-                    if (ranks.All(x => x.Id != role.Id))
+                    if (autoRoles.All(x => x.Id != role.Id))
                     {
                         var embed = new CWEEmbedBuilder()
                             .WithTitle("Not found")
-                            .WithDescription("That rank could not be found.")
+                            .WithDescription("That auto-role could not be found.")
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
@@ -202,7 +178,7 @@
                     {
                         var embed = new CWEEmbedBuilder()
                             .WithTitle("Access denied")
-                            .WithDescription("You need to be an administrator in order to delete ranks.")
+                            .WithDescription("You need to be an administrator in order to delete auto-roles.")
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
@@ -210,10 +186,10 @@
                         return;
                     }
 
-                    await this.DataAccessLayer.DeleteRank(role.Id);
+                    await this.DataAccessLayer.DeleteAutoRole(role.Id);
                     var deleted = new CWEEmbedBuilder()
-                            .WithTitle("Rank deleted")
-                            .WithDescription($"The rank was successfully deleted.")
+                            .WithTitle("Auto-role deleted")
+                            .WithDescription($"The auto-role was successfully deleted.")
                             .WithStyle(EmbedStyle.Success)
                             .Build();
 
