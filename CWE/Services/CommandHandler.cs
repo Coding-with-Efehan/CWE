@@ -211,6 +211,20 @@
         private async Task OnUserJoined(SocketGuildUser user)
         {
             var guild = this.client.GetGuild(this.configuration.GetValue<ulong>("Guild"));
+            var autoRoles = await this.GetAutoRoles();
+            var roles = new List<IRole>();
+            foreach (var current in autoRoles)
+            {
+                var currentRole = guild.GetRole(current.Id);
+                if (currentRole == null)
+                {
+                    await this.DeleteAutoRole(current.Id);
+                    continue;
+                }
+
+                roles.Add(currentRole);
+            }
+
             await this.client.SetGameAsync($"{this.client.Guilds.FirstOrDefault().Users.Where(x => !x.IsBot).Count()} programmers", null, ActivityType.Watching);
 
             if (user.Guild != guild)
@@ -218,8 +232,7 @@
                 return;
             }
 
-            var role = guild.Roles.FirstOrDefault(x => x.Name == "Member");
-            await user.AddRoleAsync(role);
+            await user.AddRolesAsync(roles);
         }
 
         private async Task OnUserLeft(SocketGuildUser user)
@@ -267,6 +280,20 @@
             using var scope = this.provider.CreateScope();
             var dataAccessLayer = scope.ServiceProvider.GetRequiredService<DataAccessLayer>();
             await dataAccessLayer.DeleteRequest(messageId);
+        }
+
+        private async Task<IEnumerable<AutoRole>> GetAutoRoles()
+        {
+            using var scope = this.provider.CreateScope();
+            var dataAccessLayer = scope.ServiceProvider.GetRequiredService<DataAccessLayer>();
+            return await dataAccessLayer.GetAutoRoles();
+        }
+
+        private async Task DeleteAutoRole(ulong roleId)
+        {
+            using var scope = this.provider.CreateScope();
+            var dataAccessLayer = scope.ServiceProvider.GetRequiredService<DataAccessLayer>();
+            await dataAccessLayer.DeleteAutoRole(roleId);
         }
 
         private async Task CampaignHandler()

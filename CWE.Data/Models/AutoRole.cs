@@ -1,9 +1,9 @@
 ﻿namespace CWE.Data.Models
 {
     /// <summary>
-    /// A role someone can join via a command.
+    /// A role that is automatically assigned to a new member.
     /// </summary>
-    public class Rank
+    public class AutoRole
     {
         /// <summary>
         /// Gets or sets the ID of the role.
