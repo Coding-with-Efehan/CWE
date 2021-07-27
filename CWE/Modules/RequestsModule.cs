@@ -110,11 +110,11 @@
             }
 
             var socketGuildUser = this.Context.User as SocketGuildUser;
-            if (socketGuildUser.Roles.All(x => x.Name != "Patron"))
+            if (socketGuildUser.Roles.All(x => x.Name != "Patron" && x.Name != "Server Booster"))
             {
                 var error = new CWEEmbedBuilder()
-                    .WithTitle("Not a Patron")
-                    .WithDescription($"This command can only be used by patrons. Take a look at [our Patreon page](https://www.patreon.com/codingwithefehan) to become a patron.")
+                    .WithTitle("Access denied")
+                    .WithDescription($"This command can only be used by patrons and server boosters. Take a look at [our Patreon page](https://www.patreon.com/codingwithefehan) to become a patron.")
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
@@ -143,7 +143,7 @@
                 await this.DataAccessLayer.CreateRequest(request);
                 var success = new CWEEmbedBuilder()
                     .WithTitle("Request sent!")
-                    .WithDescription($"Your request has been sent!")
+                    .WithDescription($"Your request has been sent.")
                     .WithStyle(EmbedStyle.Success)
                     .Build();
 
@@ -173,7 +173,7 @@
             CommandHandler.Requests = !CommandHandler.Requests;
             var success = new CWEEmbedBuilder()
                     .WithTitle((CommandHandler.Requests ? "Enabled" : "Disabled") + " requests")
-                    .WithDescription($"Successfully {(CommandHandler.Requests ? "enabled" : "disabled")} requests!")
+                    .WithDescription($"Successfully {(CommandHandler.Requests ? "enabled" : "disabled")} requests.")
                     .WithStyle(EmbedStyle.Success)
                     .Build();
 

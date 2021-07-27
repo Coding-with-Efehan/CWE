@@ -105,8 +105,8 @@
             var suggestions = this.Context.Client.GetGuild(this.Configuration.GetValue<ulong>("Guild")).GetTextChannel(this.Configuration.GetSection("Channels").GetValue<ulong>("Suggestions"));
             var message = await suggestions.GetMessageAsync(suggestion.MessageId) as IUserMessage;
 
-            var upvotes = message.Reactions.Where(x => x.Key == new Emoji("✅")).Count();
-            var downvotes = message.Reactions.Where(x => x.Key == new Emoji("❌")).Count();
+            var upvotes = message.Reactions.FirstOrDefault(x => x.Key.Name == "✅").Value.ReactionCount - 1;
+            var downvotes = message.Reactions.FirstOrDefault(x => x.Key.Name == "❌").Value.ReactionCount - 1;
 
             var embed = message.Embeds.FirstOrDefault()
                 .ToEmbedBuilder()

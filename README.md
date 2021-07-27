@@ -1,7 +1,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/Coding-with-Efehan/CWE">
-    <img src="https://cdn.discordapp.com/avatars/777286538370744330/8637918870aed28e3b538aac8ac8b534.png?size=2048" alt="Logo" width="80" height="80">
+    <img src="https://cdn.discordapp.com/avatars/777286538370744330/8637918870aed28e3b538aac8ac8b534.png?size=2048" alt="Logo" width="220" height="220">
   </a>
 
   <h3 align="center">CWE</h3>

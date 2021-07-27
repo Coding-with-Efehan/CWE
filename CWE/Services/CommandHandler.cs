@@ -211,6 +211,20 @@
         private async Task OnUserJoined(SocketGuildUser user)
         {
             var guild = this.client.GetGuild(this.configuration.GetValue<ulong>("Guild"));
+            var autoRoles = await this.GetAutoRoles();
+            var roles = new List<IRole>();
+            foreach (var current in autoRoles)
+            {
+                var currentRole = guild.GetRole(current.Id);
+                if (currentRole == null)
+                {
+                    await this.DeleteAutoRole(current.Id);
+                    continue;
+                }
+
+                roles.Add(currentRole);
+            }
+
             await this.client.SetGameAsync($"{this.client.Guilds.FirstOrDefault().Users.Where(x => !x.IsBot).Count()} programmers", null, ActivityType.Watching);
 
             if (user.Guild != guild)
@@ -218,8 +232,7 @@
                 return;
             }
 
-            var role = guild.Roles.FirstOrDefault(x => x.Name == "Member");
-            await user.AddRoleAsync(role);
+            await user.AddRolesAsync(roles);
         }
 
         private async Task OnUserLeft(SocketGuildUser user)
@@ -269,6 +282,20 @@
             await dataAccessLayer.DeleteRequest(messageId);
         }
 
+        private async Task<IEnumerable<AutoRole>> GetAutoRoles()
+        {
+            using var scope = this.provider.CreateScope();
+            var dataAccessLayer = scope.ServiceProvider.GetRequiredService<DataAccessLayer>();
+            return await dataAccessLayer.GetAutoRoles();
+        }
+
+        private async Task DeleteAutoRole(ulong roleId)
+        {
+            using var scope = this.provider.CreateScope();
+            var dataAccessLayer = scope.ServiceProvider.GetRequiredService<DataAccessLayer>();
+            await dataAccessLayer.DeleteAutoRole(roleId);
+        }
+
         private async Task CampaignHandler()
         {
             while (true)
@@ -312,7 +339,8 @@
             }
             var msg = await arg3.Channel.GetMessageAsync(campaign.Message) as IUserMessage;
 
-            int current = msg.Reactions.FirstOrDefault(x => x.Key.Name == "✅").Value.ReactionCount;
+            var users = await msg.GetReactionUsersAsync(new Emoji("✅"), 100).FlattenAsync();
+            var current = users.Where(x => x.Id != campaign.Initiator).Count();
 
             if (current < campaign.Minimal)
             {
@@ -366,7 +394,44 @@
                 return;
             }
 
-            await context.Channel.SendMessageAsync($"Error: {result}");
+            string title = string.Empty;
+            string description = string.Empty;
+
+            switch (result.Error)
+            {
+                case CommandError.BadArgCount:
+                    title = "Invalid use of command";
+                    description = "Please provide the correct amount of parameters.";
+                    break;
+                case CommandError.MultipleMatches:
+                    title = "Invalid argument";
+                    description = "Please provide a valid argument.";
+                    break;
+                case CommandError.ObjectNotFound:
+                    title = "Not found";
+                    description = "The argument that was provided could not be found.";
+                    break;
+                case CommandError.ParseFailed:
+                    title = "Invalid argument";
+                    description = "The argument that you provided could not be parsed correctly.";
+                    break;
+                case CommandError.UnmetPrecondition:
+                    title = "Access denied";
+                    description = "You or the bot does not meet the required preconditions.";
+                    break;
+                default:
+                    title = "An error occurred";
+                    description = "An error occurred while trying to run this command.";
+                    break;
+            }
+
+            var error = new CWEEmbedBuilder()
+                .WithTitle(title)
+                .WithDescription(description)
+                .WithStyle(EmbedStyle.Error)
+                .Build();
+
+            await context.Channel.SendMessageAsync(embed: error);
         }
     }
 }
