@@ -1,0 +1,34 @@
+name: Continuous Integration
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '.github/**'
+      - '.git/**'
+      - 'README.md'
+      - '.vs/**'
+      - 'LICENSE'
+      - '.idea'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '.github/**'
+      - '.git/**'
+      - 'README.md'
+      - '.vs/**'
+      - 'LICENSE'
+      - '.idea'
+jobs:
+  continuous-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.301
+      - name: dotnet build
+        run: dotnet build --configuration 'Release'
