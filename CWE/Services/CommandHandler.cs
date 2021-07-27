@@ -333,7 +333,7 @@
 
             var campaign = campaigns.FirstOrDefault(x => x.Message == arg3.MessageId);
 
-            if (arg3.UserId == campaign.Initiator || arg3.UserId == campaign.User)
+            if (arg3.UserId == campaign.Initiator)
             {
                 return;
             }
