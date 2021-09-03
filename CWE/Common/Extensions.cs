@@ -30,13 +30,13 @@
                         .AddJsonFile("appsettings.json", false, true)
                         .Build();
 
-                var regularRoleId = configuration.GetSection("Roles").GetValue<ulong>("Regular");
-                var associateRoleId = configuration.GetSection("Roles").GetValue<ulong>("Associate");
+                var helperRoleId = configuration.GetSection("Roles").GetValue<ulong>("Helper");
+                var contributorRoleId = configuration.GetSection("Roles").GetValue<ulong>("Contributor");
 
-                var regularRole = socketGuildUser.Guild.GetRole(regularRoleId);
-                var associateRole = socketGuildUser.Guild.GetRole(associateRoleId);
-                if (!socketGuildUser.Roles.Contains(regularRole) &&
-                    !socketGuildUser.Roles.Contains(associateRole) &&
+                var helperRole = socketGuildUser.Guild.GetRole(helperRoleId);
+                var contributorRole = socketGuildUser.Guild.GetRole(contributorRoleId);
+                if (!socketGuildUser.Roles.Contains(helperRole) &&
+                    !socketGuildUser.Roles.Contains(contributorRole) &&
                     !socketGuildUser.GuildPermissions.Administrator)
                 {
                     return false;

@@ -57,14 +57,10 @@
         public override async Task InitializeAsync(CancellationToken cancellationToken)
         {
             this.client.MessageReceived += this.HandleMessage;
-            this.client.ReactionAdded += this.OnReactionAdded;
             this.client.InteractionCreated += this.OnInteractionCreated;
             this.client.Ready += this.OnReady;
             this.client.UserJoined += this.OnUserJoined;
             this.client.UserLeft += this.OnUserLeft;
-
-            var campaignHandler = new Task(async () => await this.CampaignHandler());
-            campaignHandler.Start();
 
             this.commandService.CommandExecuted += this.CommandExecutedAsync;
             await this.commandService.AddModulesAsync(Assembly.GetEntryAssembly(), this.provider);
@@ -240,20 +236,6 @@
             await this.client.SetGameAsync($"{this.client.Guilds.FirstOrDefault().Users.Where(x => !x.IsBot).Count()} programmers", null, ActivityType.Watching);
         }
 
-        private async Task<IEnumerable<Campaign>> GetCampaigns()
-        {
-            using var scope = this.provider.CreateScope();
-            var dataAccessLayer = scope.ServiceProvider.GetRequiredService<DataAccessLayer>();
-            return await dataAccessLayer.GetCampaigns();
-        }
-
-        private async Task DeleteCampaign(ulong id)
-        {
-            using var scope = this.provider.CreateScope();
-            var dataAccessLayer = scope.ServiceProvider.GetRequiredService<DataAccessLayer>();
-            await dataAccessLayer.DeleteCampaign(id);
-        }
-
         private async Task<IEnumerable<Request>> GetRequests()
         {
             using var scope = this.provider.CreateScope();
@@ -294,76 +276,6 @@
             using var scope = this.provider.CreateScope();
             var dataAccessLayer = scope.ServiceProvider.GetRequiredService<DataAccessLayer>();
             await dataAccessLayer.DeleteAutoRole(roleId);
-        }
-
-        private async Task CampaignHandler()
-        {
-            while (true)
-            {
-                var campaigns = await this.GetCampaigns();
-                foreach (var campaign in campaigns)
-                {
-                    if (DateTime.Now < campaign.End)
-                    {
-                        continue;
-                    }
-
-                    var msg = await this.client.GetGuild(this.configuration.GetValue<ulong>("Guild")).GetTextChannel(this.configuration.GetSection("Channels").GetValue<ulong>("Campaigns")).GetMessageAsync(campaign.Message) as IUserMessage;
-                    if (msg != null)
-                    {
-                        var denied = CampaignsModule.GetDeniedEmbed(campaign);
-                        await msg.ModifyAsync(x => x.Embed = denied);
-                        await msg.RemoveAllReactionsAsync();
-                    }
-
-                    await this.DeleteCampaign(campaign.User);
-                }
-
-                await Task.Delay(60 * 60 * 1000);
-            }
-        }
-
-        private async Task OnReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2, SocketReaction arg3)
-        {
-            var campaigns = await this.GetCampaigns();
-            if (!campaigns.Any(x => x.Message == arg3.MessageId))
-            {
-                return;
-            }
-
-            var campaign = campaigns.FirstOrDefault(x => x.Message == arg3.MessageId);
-
-            if (arg3.UserId == campaign.Initiator)
-            {
-                return;
-            }
-
-            var msg = await arg3.Channel.GetMessageAsync(campaign.Message) as IUserMessage;
-
-            var users = await msg.GetReactionUsersAsync(new Emoji("✅"), 100).FlattenAsync();
-            var current = users.Where(x => x.Id != campaign.Initiator).Count();
-
-            if (current < campaign.Minimal)
-            {
-                return;
-            }
-
-            var accepted = CampaignsModule.GetAcceptedEmbed(campaign);
-            await msg.ModifyAsync(x => x.Embed = accepted);
-            await msg.RemoveAllReactionsAsync();
-
-            var user = (msg.Channel as SocketGuildChannel).Guild.GetUser(campaign.User);
-            if (campaign.Type == CampaignType.Regular)
-            {
-                await user.AddRoleAsync(user.Guild.GetRole(this.configuration.GetSection("Roles").GetValue<ulong>("Regular")));
-            }
-            else
-            {
-                await user.RemoveRoleAsync(user.Guild.GetRole(this.configuration.GetSection("Roles").GetValue<ulong>("Regular")));
-                await user.AddRoleAsync(user.Guild.GetRole(this.configuration.GetSection("Roles").GetValue<ulong>("Associate")));
-            }
-
-            await this.DeleteCampaign(campaign.User);
         }
 
         private async Task HandleMessage(SocketMessage incomingMessage)

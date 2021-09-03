@@ -112,7 +112,7 @@
                     {
                         var embed = new CWEEmbedBuilder()
                             .WithTitle("Access denied")
-                            .WithDescription("You need to be a regular, associate or administrator in order to create tags.")
+                            .WithDescription("You need to be a helper, contributor or administrator in order to create tags.")
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 

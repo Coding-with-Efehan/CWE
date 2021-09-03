@@ -110,7 +110,7 @@
             }
 
             var socketGuildUser = this.Context.User as SocketGuildUser;
-            if (socketGuildUser.Roles.All(x => x.Name != "Patron" && x.Name != "Server Booster"))
+            if (socketGuildUser.Roles.All(x => x.Name != "Patron" && x.Name != "Server Booster" && x.Name != "Helper" && x.Name != "Contributor"))
             {
                 var error = new CWEEmbedBuilder()
                     .WithTitle("Access denied")

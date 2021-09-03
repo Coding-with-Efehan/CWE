@@ -18,11 +18,6 @@
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="DbSet{TEntity}"/> containing all campaigns.
-        /// </summary>
-        public DbSet<Campaign> Campaigns { get; set; }
-
-        /// <summary>
         /// Gets or sets the <see cref="DbSet{TEntity}"/> containing all requests.
         /// </summary>
         public DbSet<Request> Requests { get; set; }

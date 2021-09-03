@@ -12,7 +12,7 @@
     using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
-    /// Attribute used to ensure the user is promoted (either a regular or associate).
+    /// Attribute used to ensure the user is promoted (a helper or higher).
     /// </summary>
     public class RequirePromoted : PreconditionAttribute
     {
@@ -27,12 +27,12 @@
         {
             if (context.User is SocketGuildUser user)
             {
-                var regularRoleId = services.GetRequiredService<IConfiguration>().GetSection("Roles").GetValue<ulong>("Regular");
-                var associateRoleId = services.GetRequiredService<IConfiguration>().GetSection("Roles").GetValue<ulong>("Associate");
+                var helperRoleId = services.GetRequiredService<IConfiguration>().GetSection("Roles").GetValue<ulong>("Helper");
+                var contributorRoleId = services.GetRequiredService<IConfiguration>().GetSection("Roles").GetValue<ulong>("Contributor");
 
-                var regularRole = context.Guild.GetRole(regularRoleId);
-                var associateRole = context.Guild.GetRole(associateRoleId);
-                if (user.Roles.Contains(regularRole) || user.Roles.Contains(associateRole))
+                var helperRole = context.Guild.GetRole(helperRoleId);
+                var contributorRole = context.Guild.GetRole(contributorRoleId);
+                if (user.Roles.Contains(helperRole) || user.Roles.Contains(contributorRole))
                 {
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 }
