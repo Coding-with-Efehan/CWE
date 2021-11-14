@@ -8,6 +8,7 @@
     using CWE.Services;
     using Discord;
     using Discord.Addons.Hosting;
+    using Discord.Commands;
     using Discord.WebSocket;
     using Interactivity;
     using Microsoft.EntityFrameworkCore;
@@ -38,7 +39,7 @@
                     x.AddConsole();
                     x.SetMinimumLevel(LogLevel.Debug);
                 })
-                .ConfigureDiscordHost<DiscordSocketClient>((context, config) =>
+                .ConfigureDiscordHost((context, config) =>
                 {
                     config.SocketConfig = new DiscordSocketConfig
                     {
@@ -49,7 +50,12 @@
 
                     config.Token = context.Configuration["Token"];
                 })
-                .UseCommandService()
+                .UseCommandService((context, config) =>
+                {
+                    config.LogLevel = LogSeverity.Info;
+                    config.CaseSensitiveCommands = false;
+                    config.DefaultRunMode = RunMode.Async;
+                })
                 .ConfigureServices((context, services) =>
                 {
                     services
