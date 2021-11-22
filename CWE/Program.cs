@@ -46,6 +46,7 @@
                         LogLevel = LogSeverity.Verbose,
                         AlwaysDownloadUsers = true,
                         MessageCacheSize = 200,
+                        GatewayIntents = GatewayIntents.All,
                     };
 
                     config.Token = context.Configuration["Token"];
