@@ -1,4 +1,6 @@
-﻿namespace CWE.Services
+﻿using System.Text.RegularExpressions;
+
+namespace CWE.Services
 {
     using System;
     using System.Collections.Generic;
@@ -35,6 +37,7 @@
         private readonly CommandService commandService;
         private readonly IConfiguration configuration;
         private readonly ILogger<CommandHandler> logger;
+        private readonly Regex inlineTagRegex = new(@"\$(\S+)\b");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandHandler"/> class.
@@ -289,7 +292,17 @@
             {
                 return;
             }
-
+            
+            var content = Regex.Replace(message.Content, @"(`{1,3}).*?(.\1)", string.Empty, RegexOptions.Singleline);
+            content = Regex.Replace(content, "^>.*$", string.Empty, RegexOptions.Multiline);
+            if (!string.IsNullOrWhiteSpace(content))
+            {
+                var match = inlineTagRegex.Match(content);
+                if (match.Success)
+                {
+                    await this.InlineTagAsync(message, match);
+                }
+            }
             int argPos = 0;
             if (!message.HasStringPrefix(this.configuration["Prefix"], ref argPos) && !message.HasMentionPrefix(this.client.CurrentUser, ref argPos))
             {
@@ -300,6 +313,25 @@
             await this.commandService.ExecuteAsync(context, argPos, this.provider);
         }
 
+        private async Task InlineTagAsync(SocketUserMessage message, Match regexMatch)
+        {
+            var tagName = regexMatch.Groups[1].Value;
+            if (string.IsNullOrWhiteSpace(tagName))
+            {
+                return;
+            }
+
+            using var scope = this.provider.CreateScope();
+            var dataAccessLayer = scope.ServiceProvider.GetRequiredService<DataAccessLayer>();
+            var tag = await dataAccessLayer.GetTag(tagName);
+            if (tag == null)
+            {
+                return;
+            }
+
+            await message.Channel.SendMessageAsync(tag.Content);
+        }
+        
         private async Task CommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)
         {
             if (!command.IsSpecified || result.IsSuccess)
