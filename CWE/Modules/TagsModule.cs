@@ -57,97 +57,13 @@ namespace CWE.Modules
             var list = new CWEEmbedBuilder()
                     .WithTitle($"Tags ({tags.Count()})")
                     .WithDescription(description)
-                    .WithFooter($"Use \"{this.Configuration.GetValue<string>("Prefix")}t name\" to view a tag, or use $name to view it.")
+                    .WithFooter($"Use $tagName to view it.")
                     .WithStyle(EmbedStyle.Information)
                     .Build();
 
             await this.Context.Channel.SendMessageAsync(embed: list);
         }
-
-        /// <summary>
-        /// The command used to get, create, modify and delete a tag.
-        /// </summary>
-        /// <param name="argument">A string argument that is later converted to an array of strings.</param>
-        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        [Command("tag")]
-        [Alias("t")]
-        public async Task Tag([Remainder] string argument)
-        {
-            var arguments = argument.Split(" ");
-
-            if (arguments.Count() == 1 && arguments[0] != "create" && arguments[0] != "edit" && arguments[0] != "transfer" && arguments[0] != "delete")
-            {
-                var tag = await this.DataAccessLayer.GetTag(arguments[0]);
-                if (tag == null)
-                {
-                    var embed = new CWEEmbedBuilder()
-                        .WithTitle("Not found")
-                        .WithDescription("The tag you requested could not be found.")
-                        .WithStyle(EmbedStyle.Error)
-                        .Build();
-
-                    await this.Context.Channel.SendMessageAsync(embed: embed);
-                    return;
-                }
-
-                await this.Context.Channel.SendMessageAsync(tag.Content);
-                return;
-            }
-
-            var socketGuildUser = this.Context.User as SocketGuildUser;
-
-            switch (arguments[0])
-            {
-                case "transfer":
-                    var tagToTransfer = await this.DataAccessLayer.GetTag(arguments[1]);
-                    if (tagToTransfer == null)
-                    {
-                        var embed = new CWEEmbedBuilder()
-                            .WithTitle("Not found")
-                            .WithDescription("That tag could not be found.")
-                            .WithStyle(EmbedStyle.Error)
-                            .Build();
-
-                        await this.Context.Channel.SendMessageAsync(embed: embed);
-                        return;
-                    }
-
-                    if (!MentionUtils.TryParseUser(arguments[2], out ulong userId) || this.Context.Guild.GetUser(userId) == null)
-                    {
-                        var embed = new CWEEmbedBuilder()
-                            .WithTitle("Invalid user")
-                            .WithDescription("Please provide a valid user.")
-                            .WithStyle(EmbedStyle.Error)
-                            .Build();
-
-                        await this.Context.Channel.SendMessageAsync(embed: embed);
-                        return;
-                    }
-
-                    if (tagToTransfer.OwnerId != this.Context.User.Id && !socketGuildUser.GuildPermissions.Administrator)
-                    {
-                        var embed = new CWEEmbedBuilder()
-                            .WithTitle("Access denied")
-                            .WithDescription("You need to be the owner of this tag or an administrator to transfer the ownership of this tag.")
-                            .WithStyle(EmbedStyle.Error)
-                            .Build();
-
-                        await this.Context.Channel.SendMessageAsync(embed: embed);
-                        return;
-                    }
-
-                    await this.DataAccessLayer.EditTagOwner(arguments[1], userId);
-                    var success = new CWEEmbedBuilder()
-                            .WithTitle("Tag ownership transferred")
-                            .WithDescription($"The ownership of the tag has been transferred to <@{userId}>.")
-                            .WithStyle(EmbedStyle.Success)
-                            .Build();
-
-                    await this.Context.Channel.SendMessageAsync(embed: success);
-                    break;
-            }
-        }
-
+        
         /// <summary>
         /// The command used to create a tag.
         /// </summary>
