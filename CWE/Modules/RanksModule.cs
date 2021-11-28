@@ -36,15 +36,15 @@
         [Command("ranks")]
         public async Task Ranks()
         {
-            var ranks = await this.DataAccessLayer.GetRanks();
+            var ranks = await DataAccessLayer.GetRanks();
             var roles = new List<IRole>();
-            var guild = this.Context.Client.GetGuild(this.Configuration.GetValue<ulong>("Guild"));
+            var guild = Context.Client.GetGuild(Configuration.GetValue<ulong>("Guild"));
             foreach (var rank in ranks)
             {
                 var role = guild.GetRole(rank.Id);
                 if (role == null)
                 {
-                    await this.DataAccessLayer.DeleteRank(rank.Id);
+                    await DataAccessLayer.DeleteRank(rank.Id);
                     continue;
                 }
 
@@ -59,7 +59,7 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await this.Context.Channel.SendMessageAsync(embed: noRanks);
+                await Context.Channel.SendMessageAsync(embed: noRanks);
                 return;
             }
 
@@ -68,11 +68,11 @@
             var list = new CWEEmbedBuilder()
                     .WithTitle($"Ranks ({roles.Count()})")
                     .WithDescription(description)
-                    .WithFooter($"Use \"{this.Configuration.GetValue<string>("Prefix")}r name\" to join a rank")
+                    .WithFooter($"Use \"{Configuration.GetValue<string>("Prefix")}r name\" to join a rank")
                     .WithStyle(EmbedStyle.Information)
                     .Build();
 
-            await this.Context.Channel.SendMessageAsync(embed: list);
+            await Context.Channel.SendMessageAsync(embed: list);
         }
 
         /// <summary>
@@ -84,15 +84,15 @@
         [Alias("r")]
         public async Task Rank([Remainder] string argument)
         {
-            var ranks = await this.DataAccessLayer.GetRanks();
+            var ranks = await DataAccessLayer.GetRanks();
             var roles = new List<IRole>();
-            var socketGuildUser = this.Context.User as SocketGuildUser;
+            var socketGuildUser = Context.User as SocketGuildUser;
             foreach (var currentRank in ranks)
             {
-                var currentRole = this.Context.Guild.GetRole(currentRank.Id);
+                var currentRole = Context.Guild.GetRole(currentRank.Id);
                 if (currentRole == null)
                 {
-                    await this.DataAccessLayer.DeleteRank(currentRank.Id);
+                    await DataAccessLayer.DeleteRank(currentRank.Id);
                     continue;
                 }
 
@@ -112,7 +112,7 @@
                         .WithStyle(EmbedStyle.Error)
                         .Build();
 
-                    await this.Context.Channel.SendMessageAsync(embed: embed);
+                    await Context.Channel.SendMessageAsync(embed: embed);
                     return;
                 }
 
@@ -132,11 +132,11 @@
                     .WithStyle(EmbedStyle.Success)
                     .Build();
 
-                await this.Context.Channel.SendMessageAsync(embed: success);
+                await Context.Channel.SendMessageAsync(embed: success);
                 return;
             }
 
-            var role = this.Context.Guild.Roles.FirstOrDefault(x => x.Name.ToLower() == arguments[1].ToLower());
+            var role = Context.Guild.Roles.FirstOrDefault(x => x.Name.ToLower() == arguments[1].ToLower());
             if (role == null)
             {
                 var embed = new CWEEmbedBuilder()
@@ -145,7 +145,7 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await this.Context.Channel.SendMessageAsync(embed: embed);
+                await Context.Channel.SendMessageAsync(embed: embed);
                 return;
             }
 
@@ -160,7 +160,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await this.Context.Channel.SendMessageAsync(embed: embed);
+                        await Context.Channel.SendMessageAsync(embed: embed);
                         return;
                     }
 
@@ -172,18 +172,18 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await this.Context.Channel.SendMessageAsync(embed: embed);
+                        await Context.Channel.SendMessageAsync(embed: embed);
                         return;
                     }
 
-                    await this.DataAccessLayer.CreateRank(role.Id);
+                    await DataAccessLayer.CreateRank(role.Id);
                     var created = new CWEEmbedBuilder()
                             .WithTitle("Rank created")
                             .WithDescription($"The rank \"{role.Name}\" has been created.")
                             .WithStyle(EmbedStyle.Success)
                             .Build();
 
-                    await this.Context.Channel.SendMessageAsync(embed: created);
+                    await Context.Channel.SendMessageAsync(embed: created);
                     break;
                 case "delete":
                     if (ranks.All(x => x.Id != role.Id))
@@ -194,7 +194,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await this.Context.Channel.SendMessageAsync(embed: embed);
+                        await Context.Channel.SendMessageAsync(embed: embed);
                         return;
                     }
 
@@ -206,18 +206,18 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await this.Context.Channel.SendMessageAsync(embed: embed);
+                        await Context.Channel.SendMessageAsync(embed: embed);
                         return;
                     }
 
-                    await this.DataAccessLayer.DeleteRank(role.Id);
+                    await DataAccessLayer.DeleteRank(role.Id);
                     var deleted = new CWEEmbedBuilder()
                             .WithTitle("Rank deleted")
                             .WithDescription($"The rank was successfully deleted.")
                             .WithStyle(EmbedStyle.Success)
                             .Build();
 
-                    await this.Context.Channel.SendMessageAsync(embed: deleted);
+                    await Context.Channel.SendMessageAsync(embed: deleted);
                     break;
             }
         }

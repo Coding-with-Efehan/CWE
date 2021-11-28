@@ -36,15 +36,15 @@
         [Command("autoroles")]
         public async Task AutoRoles()
         {
-            var autoRoles = await this.DataAccessLayer.GetAutoRoles();
+            var autoRoles = await DataAccessLayer.GetAutoRoles();
             var roles = new List<IRole>();
-            var guild = this.Context.Client.GetGuild(this.Configuration.GetValue<ulong>("Guild"));
+            var guild = Context.Client.GetGuild(Configuration.GetValue<ulong>("Guild"));
             foreach (var autoRole in autoRoles)
             {
                 var role = guild.GetRole(autoRole.Id);
                 if (role == null)
                 {
-                    await this.DataAccessLayer.DeleteAutoRole(autoRole.Id);
+                    await DataAccessLayer.DeleteAutoRole(autoRole.Id);
                     continue;
                 }
 
@@ -59,7 +59,7 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await this.Context.Channel.SendMessageAsync(embed: noRanks);
+                await Context.Channel.SendMessageAsync(embed: noRanks);
                 return;
             }
 
@@ -71,7 +71,7 @@
                     .WithStyle(EmbedStyle.Information)
                     .Build();
 
-            await this.Context.Channel.SendMessageAsync(embed: list);
+            await Context.Channel.SendMessageAsync(embed: list);
         }
 
         /// <summary>
@@ -82,15 +82,15 @@
         [Command("autorole")]
         public async Task Rank([Remainder] string argument)
         {
-            var autoRoles = await this.DataAccessLayer.GetAutoRoles();
+            var autoRoles = await DataAccessLayer.GetAutoRoles();
             var roles = new List<IRole>();
-            var socketGuildUser = this.Context.User as SocketGuildUser;
+            var socketGuildUser = Context.User as SocketGuildUser;
             foreach (var current in autoRoles)
             {
-                var currentRole = this.Context.Guild.GetRole(current.Id);
+                var currentRole = Context.Guild.GetRole(current.Id);
                 if (currentRole == null)
                 {
-                    await this.DataAccessLayer.DeleteRank(current.Id);
+                    await DataAccessLayer.DeleteRank(current.Id);
                     continue;
                 }
 
@@ -108,11 +108,11 @@
                     .WithStyle(EmbedStyle.Success)
                     .Build();
 
-                await this.Context.Channel.SendMessageAsync(embed: error);
+                await Context.Channel.SendMessageAsync(embed: error);
                 return;
             }
 
-            var role = this.Context.Guild.Roles.FirstOrDefault(x => x.Name.ToLower() == arguments[1].ToLower());
+            var role = Context.Guild.Roles.FirstOrDefault(x => x.Name.ToLower() == arguments[1].ToLower());
             if (role == null)
             {
                 var embed = new CWEEmbedBuilder()
@@ -121,7 +121,7 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await this.Context.Channel.SendMessageAsync(embed: embed);
+                await Context.Channel.SendMessageAsync(embed: embed);
                 return;
             }
 
@@ -136,7 +136,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await this.Context.Channel.SendMessageAsync(embed: embed);
+                        await Context.Channel.SendMessageAsync(embed: embed);
                         return;
                     }
 
@@ -148,18 +148,18 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await this.Context.Channel.SendMessageAsync(embed: embed);
+                        await Context.Channel.SendMessageAsync(embed: embed);
                         return;
                     }
 
-                    await this.DataAccessLayer.CreateAutoRole(role.Id);
+                    await DataAccessLayer.CreateAutoRole(role.Id);
                     var created = new CWEEmbedBuilder()
                             .WithTitle("Auto-role created")
                             .WithDescription($"The auto-role \"{role.Name}\" has been created.")
                             .WithStyle(EmbedStyle.Success)
                             .Build();
 
-                    await this.Context.Channel.SendMessageAsync(embed: created);
+                    await Context.Channel.SendMessageAsync(embed: created);
                     break;
                 case "delete":
                     if (autoRoles.All(x => x.Id != role.Id))
@@ -170,7 +170,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await this.Context.Channel.SendMessageAsync(embed: embed);
+                        await Context.Channel.SendMessageAsync(embed: embed);
                         return;
                     }
 
@@ -182,18 +182,18 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await this.Context.Channel.SendMessageAsync(embed: embed);
+                        await Context.Channel.SendMessageAsync(embed: embed);
                         return;
                     }
 
-                    await this.DataAccessLayer.DeleteAutoRole(role.Id);
+                    await DataAccessLayer.DeleteAutoRole(role.Id);
                     var deleted = new CWEEmbedBuilder()
                             .WithTitle("Auto-role deleted")
                             .WithDescription($"The auto-role was successfully deleted.")
                             .WithStyle(EmbedStyle.Success)
                             .Build();
 
-                    await this.Context.Channel.SendMessageAsync(embed: deleted);
+                    await Context.Channel.SendMessageAsync(embed: deleted);
                     break;
             }
         }

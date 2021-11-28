@@ -38,11 +38,11 @@
         /// <param name="interactivityService">The <see cref="InteractivityService"/> to be injected.</param>
         protected CWEModuleBase(IServiceProvider serviceProvider, IConfiguration configuration, InteractivityService interactivityService)
         {
-            this.scope = serviceProvider.CreateScope();
-            this.DataAccessLayer = this.scope.ServiceProvider.GetRequiredService<DataAccessLayer>();
+            scope = serviceProvider.CreateScope();
+            DataAccessLayer = scope.ServiceProvider.GetRequiredService<DataAccessLayer>();
 
-            this.Configuration = configuration;
-            this.Interactivity = interactivityService;
+            Configuration = configuration;
+            Interactivity = interactivityService;
         }
     }
 }

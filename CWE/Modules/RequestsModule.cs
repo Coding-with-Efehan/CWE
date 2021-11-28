@@ -105,11 +105,11 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await this.Context.Channel.SendMessageAsync(embed: error);
+                await Context.Channel.SendMessageAsync(embed: error);
                 return;
             }
 
-            var socketGuildUser = this.Context.User as SocketGuildUser;
+            var socketGuildUser = Context.User as SocketGuildUser;
             if (socketGuildUser.Roles.All(x => x.Name != "Patron" && x.Name != "Server Booster" && x.Name != "Helper" && x.Name != "Contributor"))
             {
                 var error = new CWEEmbedBuilder()
@@ -118,17 +118,17 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await this.Context.Channel.SendMessageAsync(embed: error);
+                await Context.Channel.SendMessageAsync(embed: error);
                 return;
             }
 
             var request = new Request
             {
                 Description = description,
-                Initiator = this.Context.User.Id,
+                Initiator = Context.User.Id,
             };
 
-            var channel = this.Context.Guild.GetTextChannel(this.Configuration.GetSection("Channels").GetValue<ulong>("Requests"));
+            var channel = Context.Guild.GetTextChannel(Configuration.GetSection("Channels").GetValue<ulong>("Requests"));
             var requestEmbed = GetRequestEmbed(request);
             var component = new ComponentBuilder()
                 .WithButton("Deny", "deny", ButtonStyle.Danger)
@@ -140,14 +140,14 @@
 
             try
             {
-                await this.DataAccessLayer.CreateRequest(request);
+                await DataAccessLayer.CreateRequest(request);
                 var success = new CWEEmbedBuilder()
                     .WithTitle("Request sent!")
                     .WithDescription($"Your request has been sent.")
                     .WithStyle(EmbedStyle.Success)
                     .Build();
 
-                await this.Context.Channel.SendMessageAsync(embed: success);
+                await Context.Channel.SendMessageAsync(embed: success);
             }
             catch
             {
@@ -158,7 +158,7 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await this.Context.Channel.SendMessageAsync(embed: error);
+                await Context.Channel.SendMessageAsync(embed: error);
             }
         }
 
@@ -177,7 +177,7 @@
                     .WithStyle(EmbedStyle.Success)
                     .Build();
 
-            await this.Context.Channel.SendMessageAsync(embed: success);
+            await Context.Channel.SendMessageAsync(embed: success);
         }
     }
 }

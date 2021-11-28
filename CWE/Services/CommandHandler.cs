@@ -1,11 +1,10 @@
-﻿using System.Text.RegularExpressions;
-
-namespace CWE.Services
+﻿namespace CWE.Services
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using System.Text.RegularExpressions;
     using System.Threading;
     using System.Threading.Tasks;
     using CWE.Common;
@@ -13,59 +12,58 @@ namespace CWE.Services
     using CWE.Data.Models;
     using CWE.Modules;
     using Discord;
-    using Discord.Addons.Hosting;
     using Discord.Commands;
     using Discord.WebSocket;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
 
     /// <summary>
     /// Class responsible for handling all commands and various events.
     /// </summary>
-    public class CommandHandler : InitializedService
+    public class CommandHandler : CWEService
     {
         /// <summary>
         /// Bool indicating whether or not requests should be submittable.
         /// Should be moved to database.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1401:Fields should be private", Justification = "Is used across application.")]
         public static bool Requests;
 
-        private readonly IServiceProvider provider;
-        private readonly DiscordSocketClient client;
-        private readonly CommandService commandService;
-        private readonly IConfiguration configuration;
-        private readonly ILogger<CommandHandler> logger;
+        private readonly CommandService _commandService;
+        private readonly IServiceProvider _serviceProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandHandler"/> class.
         /// </summary>
-        /// <param name="provider">The <see cref="IServiceProvider"/> to inject.</param>
         /// <param name="client">The <see cref="DiscordSocketClient"/> to inject.</param>
         /// <param name="commandService">The <see cref="CommandService"/> to inject.</param>
         /// <param name="configuration">The <see cref="IConfiguration"/> to inject.</param>
         /// <param name="logger">The <see cref="ILogger"/> to inject.</param>
-        public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService commandService, IConfiguration configuration, ILogger<CommandHandler> logger)
+        /// <param name="dataAccessLayer">The <see cref="DataAccessLayer"/> to inject.</param>
+        /// <param name="serviceProvider">The <see cref="IServiceProvider"/> to inject.</param>
+        public CommandHandler(
+            DiscordSocketClient client,
+            CommandService commandService,
+            IConfiguration configuration,
+            ILogger<CommandHandler> logger,
+            DataAccessLayer dataAccessLayer,
+            IServiceProvider serviceProvider)
+            : base(client, logger, configuration, dataAccessLayer)
         {
-            this.provider = provider;
-            this.client = client;
-            this.commandService = commandService;
-            this.configuration = configuration;
-            this.logger = logger;
+            _commandService = commandService;
+            _serviceProvider = serviceProvider;
         }
 
         /// <inheritdoc/>
-        public override async Task InitializeAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            this.client.MessageReceived += this.HandleMessage;
-            this.client.InteractionCreated += this.OnInteractionCreated;
-            this.client.Ready += this.OnReady;
-            this.client.UserJoined += this.OnUserJoined;
-            this.client.UserLeft += this.OnUserLeft;
+            Client.MessageReceived += HandleMessage;
+            Client.InteractionCreated += OnInteractionCreated;
+            Client.Ready += OnReady;
+            Client.UserJoined += OnUserJoined;
+            Client.UserLeft += OnUserLeft;
 
-            this.commandService.CommandExecuted += this.CommandExecutedAsync;
-            await this.commandService.AddModulesAsync(Assembly.GetEntryAssembly(), this.provider);
+            _commandService.CommandExecuted += CommandExecutedAsync;
+            await _commandService.AddModulesAsync(Assembly.GetEntryAssembly(), _serviceProvider);
         }
 
         private async Task OnInteractionCreated(SocketInteraction socketInteraction)
@@ -73,7 +71,7 @@ namespace CWE.Services
             if (socketInteraction.Type == InteractionType.MessageComponent)
             {
                 var socketMessageComponent = (SocketMessageComponent)socketInteraction;
-                var request = await this.GetRequest(socketMessageComponent.Message.Id);
+                var request = await DataAccessLayer.GetRequest(socketMessageComponent.Message.Id);
 
                 if (request == null)
                 {
@@ -81,8 +79,8 @@ namespace CWE.Services
                 }
 
                 var guild = (socketMessageComponent.Channel as SocketGuildChannel).Guild;
-                var requestMessage = this.configuration.GetSection("Messages").GetValue<ulong>("ActiveRequest");
-                var informationChannel = guild.GetTextChannel(this.configuration.GetSection("Channels").GetValue<ulong>("Information"));
+                var requestMessage = Configuration.GetSection("Messages").GetValue<ulong>("ActiveRequest");
+                var informationChannel = guild.GetTextChannel(Configuration.GetSection("Channels").GetValue<ulong>("Information"));
                 var initiator = guild.GetUser(request.Initiator);
 
                 switch (request.State)
@@ -106,10 +104,10 @@ namespace CWE.Services
                             }
                             catch
                             {
-                                this.logger.LogInformation($"Failed to send DM to {initiator.Username}#{initiator.Discriminator}.");
+                                Logger.LogInformation($"Failed to send DM to {initiator.Username}#{initiator.Discriminator}.");
                             }
 
-                            await this.UpdateRequest(socketMessageComponent.Message.Id, RequestState.Denied);
+                            await DataAccessLayer.UpdateRequest(socketMessageComponent.Message.Id, RequestState.Denied);
 
                             return;
                         }
@@ -133,10 +131,10 @@ namespace CWE.Services
                             }
                             catch
                             {
-                                this.logger.LogInformation($"Failed to send DM to {initiator.Username}#{initiator.Discriminator}.");
+                                Logger.LogInformation($"Failed to send DM to {initiator.Username}#{initiator.Discriminator}.");
                             }
 
-                            await this.UpdateRequest(socketMessageComponent.Message.Id, RequestState.Active);
+                            await DataAccessLayer.UpdateRequest(socketMessageComponent.Message.Id, RequestState.Active);
 
                             var activeRequest = new EmbedBuilder()
                                 .WithAuthor(x =>
@@ -155,7 +153,6 @@ namespace CWE.Services
 
                             return;
                         }
-
                     case RequestState.Active:
                         if (socketMessageComponent.Data.CustomId == "finish")
                         {
@@ -175,10 +172,10 @@ namespace CWE.Services
                             }
                             catch
                             {
-                                this.logger.LogInformation($"Failed to send DM to {initiator.Username}#{initiator.Discriminator}.");
+                                Logger.LogInformation($"Failed to send DM to {initiator.Username}#{initiator.Discriminator}.");
                             }
 
-                            await this.UpdateRequest(socketMessageComponent.Message.Id, RequestState.Finished);
+                            await DataAccessLayer.UpdateRequest(socketMessageComponent.Message.Id, RequestState.Finished);
 
                             var activeRequest = new EmbedBuilder()
                             .WithAuthor(x =>
@@ -203,27 +200,27 @@ namespace CWE.Services
 
         private async Task OnReady()
         {
-            await this.client.SetGameAsync($"{this.client.Guilds.FirstOrDefault().Users.Where(x => !x.IsBot).Count()} programmers", null, ActivityType.Watching);
+            await Client.SetGameAsync($"{Client.Guilds.FirstOrDefault().Users.Where(x => !x.IsBot).Count()} programmers", null, ActivityType.Watching);
         }
 
         private async Task OnUserJoined(SocketGuildUser user)
         {
-            var guild = this.client.GetGuild(this.configuration.GetValue<ulong>("Guild"));
-            var autoRoles = await this.GetAutoRoles();
+            var guild = Client.GetGuild(Configuration.GetValue<ulong>("Guild"));
+            var autoRoles = await DataAccessLayer.GetAutoRoles();
             var roles = new List<IRole>();
             foreach (var current in autoRoles)
             {
                 var currentRole = guild.GetRole(current.Id);
                 if (currentRole == null)
                 {
-                    await this.DeleteAutoRole(current.Id);
+                    await DataAccessLayer.DeleteAutoRole(current.Id);
                     continue;
                 }
 
                 roles.Add(currentRole);
             }
 
-            await this.client.SetGameAsync($"{this.client.Guilds.FirstOrDefault().Users.Where(x => !x.IsBot).Count()} programmers", null, ActivityType.Watching);
+            await Client.SetGameAsync($"{Client.Guilds.FirstOrDefault().Users.Where(x => !x.IsBot).Count()} programmers", null, ActivityType.Watching);
 
             if (user.Guild != guild)
             {
@@ -235,49 +232,7 @@ namespace CWE.Services
 
         private async Task OnUserLeft(SocketGuildUser user)
         {
-            await this.client.SetGameAsync($"{this.client.Guilds.FirstOrDefault().Users.Where(x => !x.IsBot).Count()} programmers", null, ActivityType.Watching);
-        }
-
-        private async Task<IEnumerable<Request>> GetRequests()
-        {
-            using var scope = this.provider.CreateScope();
-            var dataAccessLayer = scope.ServiceProvider.GetRequiredService<DataAccessLayer>();
-            return await dataAccessLayer.GetRequests();
-        }
-
-        private async Task<Request> GetRequest(ulong messageId)
-        {
-            using var scope = this.provider.CreateScope();
-            var dataAccessLayer = scope.ServiceProvider.GetRequiredService<DataAccessLayer>();
-            return await dataAccessLayer.GetRequest(messageId);
-        }
-
-        private async Task UpdateRequest(ulong messageId, RequestState state)
-        {
-            using var scope = this.provider.CreateScope();
-            var dataAccessLayer = scope.ServiceProvider.GetRequiredService<DataAccessLayer>();
-            await dataAccessLayer.UpdateRequest(messageId, state);
-        }
-
-        private async Task DeleteRequest(ulong messageId)
-        {
-            using var scope = this.provider.CreateScope();
-            var dataAccessLayer = scope.ServiceProvider.GetRequiredService<DataAccessLayer>();
-            await dataAccessLayer.DeleteRequest(messageId);
-        }
-
-        private async Task<IEnumerable<AutoRole>> GetAutoRoles()
-        {
-            using var scope = this.provider.CreateScope();
-            var dataAccessLayer = scope.ServiceProvider.GetRequiredService<DataAccessLayer>();
-            return await dataAccessLayer.GetAutoRoles();
-        }
-
-        private async Task DeleteAutoRole(ulong roleId)
-        {
-            using var scope = this.provider.CreateScope();
-            var dataAccessLayer = scope.ServiceProvider.GetRequiredService<DataAccessLayer>();
-            await dataAccessLayer.DeleteAutoRole(roleId);
+            await Client.SetGameAsync($"{Client.Guilds.FirstOrDefault().Users.Where(x => !x.IsBot).Count()} programmers", null, ActivityType.Watching);
         }
 
         private async Task HandleMessage(SocketMessage incomingMessage)
@@ -301,19 +256,19 @@ namespace CWE.Services
                     var match = new Regex(@"\$(\S+)\b").Match(content);
                     if (match.Success)
                     {
-                        await this.HandleTag(message, match);
+                        await HandleTag(message, match);
                     }
                 }
             }
 
             int argPos = 0;
-            if (!message.HasStringPrefix(this.configuration["Prefix"], ref argPos) && !message.HasMentionPrefix(this.client.CurrentUser, ref argPos))
+            if (!message.HasStringPrefix(Configuration["Prefix"], ref argPos) && !message.HasMentionPrefix(Client.CurrentUser, ref argPos))
             {
                 return;
             }
 
-            var context = new SocketCommandContext(this.client, message);
-            await this.commandService.ExecuteAsync(context, argPos, this.provider);
+            var context = new SocketCommandContext(Client, message);
+            await _commandService.ExecuteAsync(context, argPos, _serviceProvider);
         }
 
         private async Task HandleTag(SocketUserMessage message, Match regexMatch)
@@ -324,9 +279,7 @@ namespace CWE.Services
                 return;
             }
 
-            using var scope = this.provider.CreateScope();
-            var dataAccessLayer = scope.ServiceProvider.GetRequiredService<DataAccessLayer>();
-            var tag = await dataAccessLayer.GetTag(tagName);
+            var tag = await DataAccessLayer.GetTag(tagName);
             if (tag == null)
             {
                 return;

@@ -63,12 +63,11 @@
                     .AddHostedService<CommandHandler>()
                     .AddSingleton<InteractivityService>()
                     .AddSingleton(new InteractivityConfig { DefaultTimeout = TimeSpan.FromSeconds(20) })
-                    .AddDbContext<CWEDbContext>(x =>
+                    .AddDbContextFactory<CWEDbContext>(x =>
                         x.UseMySql(
                             context.Configuration["Database"],
                             new MySqlServerVersion(new Version(8, 0, 23))))
-                    .AddSingleton<DataAccessLayer>()
-                    .AddSingleton<HandlerService>();
+                    .AddSingleton<DataAccessLayer>();
                 })
                 .UseConsoleLifetime();
 

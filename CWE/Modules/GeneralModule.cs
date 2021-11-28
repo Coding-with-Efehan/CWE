@@ -30,7 +30,7 @@
         [Command("ping")]
         public async Task Ping()
         {
-            await this.ReplyAsync($"Pong! 🏓 `{this.Context.Client.Latency}ms`");
+            await ReplyAsync($"Pong! 🏓 `{Context.Client.Latency}ms`");
         }
     }
 }
