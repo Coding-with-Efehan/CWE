@@ -37,7 +37,6 @@ namespace CWE.Services
         private readonly CommandService commandService;
         private readonly IConfiguration configuration;
         private readonly ILogger<CommandHandler> logger;
-        private readonly Regex inlineTagRegex = new(@"\$(\S+)\b");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandHandler"/> class.
@@ -292,17 +291,21 @@ namespace CWE.Services
             {
                 return;
             }
-            
-            var content = Regex.Replace(message.Content, @"(`{1,3}).*?(.\1)", string.Empty, RegexOptions.Singleline);
-            content = Regex.Replace(content, "^>.*$", string.Empty, RegexOptions.Multiline);
-            if (!string.IsNullOrWhiteSpace(content))
+
+            if (message.Content.Contains("$"))
             {
-                var match = inlineTagRegex.Match(content);
-                if (match.Success)
+                var content = Regex.Replace(message.Content, @"(`{1,3}).*?(.\1)", string.Empty, RegexOptions.Singleline);
+                content = Regex.Replace(content, "^>.*$", string.Empty, RegexOptions.Multiline);
+                if (!string.IsNullOrWhiteSpace(content))
                 {
-                    await this.InlineTagAsync(message, match);
+                    var match = new Regex(@"\$(\S+)\b").Match(content);
+                    if (match.Success)
+                    {
+                        await this.HandleTag(message, match);
+                    }
                 }
             }
+
             int argPos = 0;
             if (!message.HasStringPrefix(this.configuration["Prefix"], ref argPos) && !message.HasMentionPrefix(this.client.CurrentUser, ref argPos))
             {
@@ -313,7 +316,7 @@ namespace CWE.Services
             await this.commandService.ExecuteAsync(context, argPos, this.provider);
         }
 
-        private async Task InlineTagAsync(SocketUserMessage message, Match regexMatch)
+        private async Task HandleTag(SocketUserMessage message, Match regexMatch)
         {
             var tagName = regexMatch.Groups[1].Value;
             if (string.IsNullOrWhiteSpace(tagName))
@@ -331,7 +334,7 @@ namespace CWE.Services
 
             await message.Channel.SendMessageAsync(tag.Content);
         }
-        
+
         private async Task CommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)
         {
             if (!command.IsSpecified || result.IsSuccess)
