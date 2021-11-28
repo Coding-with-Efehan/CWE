@@ -101,7 +101,7 @@ namespace CWE.Modules
             await this.DataAccessLayer.CreateTag(tagName, this.Context.User.Id, tagContent);
             var created = new CWEEmbedBuilder()
                 .WithTitle("Tag created")
-                .WithDescription($"The tag has been created. You can view it by using `{this.Configuration.GetValue<string>("Prefix")}tag {tagName}`, or by using `${tagName}` inline.")
+                .WithDescription($"The tag has been created. You can view it by using `${tagName}`.")
                 .WithStyle(EmbedStyle.Success)
                 .Build();
 
