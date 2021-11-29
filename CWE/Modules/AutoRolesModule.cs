@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using CWE.Common;
-    using CWE.Data.Models;
     using Discord;
     using Discord.Commands;
     using Discord.WebSocket;

@@ -1,7 +1,6 @@
 ﻿namespace CWE.Common
 {
     using System;
-    using System.Collections.Generic;
     using Discord;
 
     /// <summary>

@@ -1,16 +1,11 @@
 ﻿namespace CWE.Services
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Reflection;
-    using System.Text.RegularExpressions;
     using System.Threading;
     using System.Threading.Tasks;
     using CWE.Common;
     using CWE.Data;
-    using CWE.Data.Models;
-    using CWE.Modules;
     using Discord;
     using Discord.Commands;
     using Discord.WebSocket;
