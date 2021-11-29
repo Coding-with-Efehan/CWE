@@ -17,12 +17,6 @@
     /// </summary>
     public class CommandHandler : CWEService
     {
-        /// <summary>
-        /// Bool indicating whether or not requests should be submittable.
-        /// Should be moved to database.
-        /// </summary>
-        public static bool Requests;
-
         private readonly CommandService _commandService;
         private readonly IServiceProvider _serviceProvider;
 

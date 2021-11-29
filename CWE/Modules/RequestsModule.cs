@@ -97,7 +97,7 @@
         [Command("request", RunMode = RunMode.Async)]
         public async Task Request([Remainder] string description)
         {
-            if (CommandHandler.Requests == false)
+            if (Configuration.GetValue<bool>("Requests") == false)
             {
                 var error = new CWEEmbedBuilder()
                     .WithTitle("Requests disabled")
@@ -160,24 +160,6 @@
 
                 await Context.Channel.SendMessageAsync(embed: error);
             }
-        }
-
-        /// <summary>
-        /// The command used to toggle on or off the ability to send requests.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        [Command("togglerequests")]
-        [RequireOwner]
-        public async Task ToggleRequests()
-        {
-            CommandHandler.Requests = !CommandHandler.Requests;
-            var success = new CWEEmbedBuilder()
-                    .WithTitle((CommandHandler.Requests ? "Enabled" : "Disabled") + " requests")
-                    .WithDescription($"Successfully {(CommandHandler.Requests ? "enabled" : "disabled")} requests.")
-                    .WithStyle(EmbedStyle.Success)
-                    .Build();
-
-            await Context.Channel.SendMessageAsync(embed: success);
         }
     }
 }
