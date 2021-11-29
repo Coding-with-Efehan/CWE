@@ -3,7 +3,6 @@
     /// <summary>
     /// Icons used by CWE.
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1401:Fields should be private", Justification = "Fields are used throughout application.")]
     public static class Icons
     {
         /// <summary>

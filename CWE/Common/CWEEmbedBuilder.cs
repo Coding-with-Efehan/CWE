@@ -1,7 +1,6 @@
 ﻿namespace CWE.Common
 {
     using System;
-    using System.Collections.Generic;
     using Discord;
 
     /// <summary>
@@ -19,15 +18,15 @@
         /// </summary>
         public string Title
         {
-            get => this.title;
+            get => title;
             set
             {
                 if (value?.Length > 256)
                 {
-                    throw new ArgumentException(message: $"Title length must be less than or equal to 256.", paramName: nameof(this.Title));
+                    throw new ArgumentException(message: $"Title length must be less than or equal to 256.", paramName: nameof(Title));
                 }
 
-                this.title = value;
+                title = value;
             }
         }
 
@@ -36,15 +35,15 @@
         /// </summary>
         public string Description
         {
-            get => this.description;
+            get => description;
             set
             {
                 if (value?.Length > 2048)
                 {
-                    throw new ArgumentException(message: $"Description length must be less than or equal to 2048.", paramName: nameof(this.Description));
+                    throw new ArgumentException(message: $"Description length must be less than or equal to 2048.", paramName: nameof(Description));
                 }
 
-                this.description = value;
+                description = value;
             }
         }
 
@@ -53,15 +52,15 @@
         /// </summary>
         public string Footer
         {
-            get => this.footer;
+            get => footer;
             set
             {
                 if (value?.Length > 2048)
                 {
-                    throw new ArgumentException(message: $"Footer length must be less than or equal to 2048.", paramName: nameof(this.Footer));
+                    throw new ArgumentException(message: $"Footer length must be less than or equal to 2048.", paramName: nameof(Footer));
                 }
 
-                this.footer = value;
+                footer = value;
             }
         }
 
@@ -70,10 +69,10 @@
         /// </summary>
         public EmbedStyle Style
         {
-            get => this.style;
+            get => style;
             set
             {
-                this.style = value;
+                style = value;
             }
         }
 
@@ -84,7 +83,7 @@
         /// <returns>A <see cref="CWEEmbedBuilder"/> with an attached title.</returns>
         public CWEEmbedBuilder WithTitle(string title)
         {
-            this.Title = title;
+            Title = title;
             return this;
         }
 
@@ -95,7 +94,7 @@
         /// <returns>A <see cref="CWEEmbedBuilder"/> with an attached description.</returns>
         public CWEEmbedBuilder WithDescription(string description)
         {
-            this.Description = description;
+            Description = description;
             return this;
         }
 
@@ -106,7 +105,7 @@
         /// <returns>A <see cref="CWEEmbedBuilder"/> with an attached footer.</returns>
         public CWEEmbedBuilder WithFooter(string footer)
         {
-            this.Footer = footer;
+            Footer = footer;
             return this;
         }
 
@@ -117,7 +116,7 @@
         /// <returns>A <see cref="CWEEmbedBuilder"/> with an attached <see cref="EmbedStyle"/>.</returns>
         public CWEEmbedBuilder WithStyle(EmbedStyle style)
         {
-            this.Style = style;
+            Style = style;
             return this;
         }
 
@@ -128,10 +127,10 @@
         public Embed Build()
         {
             EmbedBuilder builder = new EmbedBuilder()
-                .WithDescription(this.description)
-                .WithFooter(this.footer);
+                .WithDescription(description)
+                .WithFooter(footer);
 
-            switch (this.style)
+            switch (style)
             {
                 case EmbedStyle.Success:
                     builder
@@ -140,7 +139,7 @@
                         {
                             x
                             .WithIconUrl(Icons.Success)
-                            .WithName(this.title);
+                            .WithName(title);
                         });
                     break;
                 case EmbedStyle.Error:
@@ -150,7 +149,7 @@
                         {
                             x
                             .WithIconUrl(Icons.Error)
-                            .WithName(this.title);
+                            .WithName(title);
                         });
                     break;
                 case EmbedStyle.Information:
@@ -160,7 +159,7 @@
                         {
                             x
                             .WithIconUrl(Icons.Information)
-                            .WithName(this.title);
+                            .WithName(title);
                         });
                     break;
             }

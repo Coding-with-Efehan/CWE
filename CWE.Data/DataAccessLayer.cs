@@ -13,15 +13,15 @@
     /// </summary>
     public class DataAccessLayer
     {
-        private readonly CWEDbContext dbContext;
+        private readonly IDbContextFactory<CWEDbContext> _contextFactory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DataAccessLayer"/> class.
         /// </summary>
-        /// <param name="dbContext">The <see cref="CWEDbContext"/> to be injected.</param>
-        public DataAccessLayer(CWEDbContext dbContext)
+        /// <param name="contextFactory">The <see cref="IDbContextFactory{T}"/> to be injected.</param>
+        public DataAccessLayer(IDbContextFactory<CWEDbContext> contextFactory)
         {
-            this.dbContext = dbContext;
+            _contextFactory = contextFactory;
         }
 
         /// <summary>
@@ -31,8 +31,9 @@
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task CreateRequest(Request request)
         {
-            this.dbContext.Add(request);
-            await this.dbContext.SaveChangesAsync();
+            using var context = _contextFactory.CreateDbContext();
+            context.Add(request);
+            await context.SaveChangesAsync();
         }
 
         /// <summary>
@@ -43,7 +44,8 @@
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task UpdateRequest(ulong messageId, RequestState state)
         {
-            var request = await this.dbContext.Requests
+            using var context = _contextFactory.CreateDbContext();
+            var request = await context.Requests
                 .FirstOrDefaultAsync(x => x.MessageId == messageId);
 
             if (request == null)
@@ -52,7 +54,7 @@
             }
 
             request.State = state;
-            await this.dbContext.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         /// <summary>
@@ -62,7 +64,8 @@
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task DeleteRequest(ulong messageId)
         {
-            var request = await this.dbContext.Requests
+            using var context = _contextFactory.CreateDbContext();
+            var request = await context.Requests
                 .FirstOrDefaultAsync(x => x.MessageId == messageId);
 
             if (request == null)
@@ -70,8 +73,8 @@
                 return;
             }
 
-            this.dbContext.Remove(request);
-            await this.dbContext.SaveChangesAsync();
+            context.Remove(request);
+            await context.SaveChangesAsync();
         }
 
         /// <summary>
@@ -81,7 +84,8 @@
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<Request> GetRequest(ulong messageId)
         {
-            return await this.dbContext.Requests
+            using var context = _contextFactory.CreateDbContext();
+            return await context.Requests
                 .FirstOrDefaultAsync(x => x.MessageId == messageId);
         }
 
@@ -91,7 +95,8 @@
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<IEnumerable<Request>> GetRequests()
         {
-            return await this.dbContext.Requests
+            using var context = _contextFactory.CreateDbContext();
+            return await context.Requests
                 .ToListAsync();
         }
 
@@ -102,7 +107,8 @@
         /// <returns>A <see cref="Tag"/> depending on if the tag exists in the database.</returns>
         public async Task<Tag> GetTag(string tagName)
         {
-            return await this.dbContext.Tags
+            using var context = _contextFactory.CreateDbContext();
+            return await context.Tags
                 .FirstOrDefaultAsync(x => x.Name == tagName);
         }
 
@@ -112,7 +118,8 @@
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<IEnumerable<Tag>> GetTags()
         {
-            return await this.dbContext.Tags
+            using var context = _contextFactory.CreateDbContext();
+            return await context.Tags
                 .ToListAsync();
         }
 
@@ -125,7 +132,8 @@
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task CreateTag(string name, ulong ownerId, string content)
         {
-            var tag = await this.dbContext.Tags
+            using var context = _contextFactory.CreateDbContext();
+            var tag = await context.Tags
                 .FirstOrDefaultAsync(x => x.Name == name);
 
             if (tag != null)
@@ -133,14 +141,14 @@
                 return;
             }
 
-            this.dbContext.Add(new Tag
+            context.Add(new Tag
             {
                 Name = name,
                 OwnerId = ownerId,
                 Content = content,
             });
 
-            await this.dbContext.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         /// <summary>
@@ -150,7 +158,8 @@
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task DeleteTag(string tagName)
         {
-            var tag = await this.dbContext.Tags
+            using var context = _contextFactory.CreateDbContext();
+            var tag = await context.Tags
                 .FirstOrDefaultAsync(x => x.Name == tagName);
 
             if (tag == null)
@@ -158,8 +167,8 @@
                 return;
             }
 
-            this.dbContext.Remove(tag);
-            await this.dbContext.SaveChangesAsync();
+            context.Remove(tag);
+            await context.SaveChangesAsync();
         }
 
         /// <summary>
@@ -170,7 +179,8 @@
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task EditTagContent(string tagName, string content)
         {
-            var tag = await this.dbContext.Tags
+            using var context = _contextFactory.CreateDbContext();
+            var tag = await context.Tags
                 .FirstOrDefaultAsync(x => x.Name == tagName);
 
             if (tag == null)
@@ -179,7 +189,7 @@
             }
 
             tag.Content = content;
-            await this.dbContext.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         /// <summary>
@@ -190,7 +200,8 @@
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task EditTagOwner(string tagName, ulong ownerId)
         {
-            var tag = await this.dbContext.Tags
+            using var context = _contextFactory.CreateDbContext();
+            var tag = await context.Tags
                 .FirstOrDefaultAsync(x => x.Name == tagName);
 
             if (tag == null)
@@ -199,7 +210,7 @@
             }
 
             tag.OwnerId = ownerId;
-            await this.dbContext.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         /// <summary>
@@ -209,7 +220,8 @@
         /// <returns>A <see cref="Suggestion"/> depending on if the tag exists in the database.</returns>
         public async Task<Suggestion> GetSuggestion(int id)
         {
-            return await this.dbContext.Suggestions
+            using var context = _contextFactory.CreateDbContext();
+            return await context.Suggestions
                 .FindAsync(id);
         }
 
@@ -221,13 +233,14 @@
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<int> CreateSuggestion(ulong initiator, ulong messageId)
         {
-            var entityEntry = this.dbContext.Add(new Suggestion
+            using var context = _contextFactory.CreateDbContext();
+            var entityEntry = context.Add(new Suggestion
             {
                 Initiator = initiator,
                 MessageId = messageId,
             });
 
-            await this.dbContext.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return entityEntry.Entity.Id;
         }
 
@@ -239,7 +252,8 @@
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task UpdateSuggestion(int id, SuggestionState state)
         {
-            var suggestion = await this.dbContext.Suggestions
+            using var context = _contextFactory.CreateDbContext();
+            var suggestion = await context.Suggestions
                 .FindAsync(id);
 
             if (suggestion == null)
@@ -248,7 +262,7 @@
             }
 
             suggestion.State = state;
-            await this.dbContext.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         /// <summary>
@@ -258,7 +272,8 @@
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task DeleteSuggestion(int id)
         {
-            var suggestion = await this.dbContext.Suggestions
+            using var context = _contextFactory.CreateDbContext();
+            var suggestion = await context.Suggestions
                 .FindAsync(id);
 
             if (suggestion == null)
@@ -266,8 +281,8 @@
                 return;
             }
 
-            this.dbContext.Remove(suggestion);
-            await this.dbContext.SaveChangesAsync();
+            context.Remove(suggestion);
+            await context.SaveChangesAsync();
         }
 
         /// <summary>
@@ -277,7 +292,8 @@
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task CreateRank(ulong id)
         {
-            var rank = await this.dbContext.Ranks
+            using var context = _contextFactory.CreateDbContext();
+            var rank = await context.Ranks
                 .FindAsync(id);
 
             if (rank != null)
@@ -285,8 +301,8 @@
                 return;
             }
 
-            this.dbContext.Add(new Rank { Id = id });
-            await this.dbContext.SaveChangesAsync();
+            context.Add(new Rank { Id = id });
+            await context.SaveChangesAsync();
         }
 
         /// <summary>
@@ -295,7 +311,8 @@
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation.</returns>
         public async Task<IEnumerable<Rank>> GetRanks()
         {
-            return await this.dbContext.Ranks
+            using var context = _contextFactory.CreateDbContext();
+            return await context.Ranks
                 .ToListAsync();
         }
 
@@ -306,7 +323,8 @@
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task DeleteRank(ulong id)
         {
-            var rank = await this.dbContext.Ranks
+            using var context = _contextFactory.CreateDbContext();
+            var rank = await context.Ranks
                 .FindAsync(id);
 
             if (rank == null)
@@ -314,8 +332,8 @@
                 return;
             }
 
-            this.dbContext.Remove(rank);
-            await this.dbContext.SaveChangesAsync();
+            context.Remove(rank);
+            await context.SaveChangesAsync();
         }
 
         /// <summary>
@@ -325,7 +343,8 @@
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task CreateAutoRole(ulong id)
         {
-            var autoRole = await this.dbContext.AutoRoles
+            using var context = _contextFactory.CreateDbContext();
+            var autoRole = await context.AutoRoles
                 .FindAsync(id);
 
             if (autoRole != null)
@@ -333,8 +352,8 @@
                 return;
             }
 
-            this.dbContext.Add(new AutoRole { Id = id });
-            await this.dbContext.SaveChangesAsync();
+            context.Add(new AutoRole { Id = id });
+            await context.SaveChangesAsync();
         }
 
         /// <summary>
@@ -343,7 +362,8 @@
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation.</returns>
         public async Task<IEnumerable<AutoRole>> GetAutoRoles()
         {
-            return await this.dbContext.AutoRoles
+            using var context = _contextFactory.CreateDbContext();
+            return await context.AutoRoles
                 .ToListAsync();
         }
 
@@ -354,7 +374,8 @@
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task DeleteAutoRole(ulong id)
         {
-            var autoRole = await this.dbContext.AutoRoles
+            using var context = _contextFactory.CreateDbContext();
+            var autoRole = await context.AutoRoles
                 .FindAsync(id);
 
             if (autoRole == null)
@@ -362,8 +383,8 @@
                 return;
             }
 
-            this.dbContext.Remove(autoRole);
-            await this.dbContext.SaveChangesAsync();
+            context.Remove(autoRole);
+            await context.SaveChangesAsync();
         }
     }
 }

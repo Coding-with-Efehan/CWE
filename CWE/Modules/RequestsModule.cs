@@ -97,7 +97,7 @@
         [Command("request", RunMode = RunMode.Async)]
         public async Task Request([Remainder] string description)
         {
-            if (CommandHandler.Requests == false)
+            if (Configuration.GetValue<bool>("Requests") == false)
             {
                 var error = new CWEEmbedBuilder()
                     .WithTitle("Requests disabled")
@@ -105,11 +105,11 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await this.Context.Channel.SendMessageAsync(embed: error);
+                await ReplyAsync(embed: error);
                 return;
             }
 
-            var socketGuildUser = this.Context.User as SocketGuildUser;
+            var socketGuildUser = Context.User as SocketGuildUser;
             if (socketGuildUser.Roles.All(x => x.Name != "Patron" && x.Name != "Server Booster" && x.Name != "Helper" && x.Name != "Contributor"))
             {
                 var error = new CWEEmbedBuilder()
@@ -118,17 +118,17 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await this.Context.Channel.SendMessageAsync(embed: error);
+                await ReplyAsync(embed: error);
                 return;
             }
 
             var request = new Request
             {
                 Description = description,
-                Initiator = this.Context.User.Id,
+                Initiator = Context.User.Id,
             };
 
-            var channel = this.Context.Guild.GetTextChannel(this.Configuration.GetSection("Channels").GetValue<ulong>("Requests"));
+            var channel = Context.Guild.GetTextChannel(Configuration.GetSection("Channels").GetValue<ulong>("Requests"));
             var requestEmbed = GetRequestEmbed(request);
             var component = new ComponentBuilder()
                 .WithButton("Deny", "deny", ButtonStyle.Danger)
@@ -140,14 +140,14 @@
 
             try
             {
-                await this.DataAccessLayer.CreateRequest(request);
+                await DataAccessLayer.CreateRequest(request);
                 var success = new CWEEmbedBuilder()
                     .WithTitle("Request sent!")
                     .WithDescription($"Your request has been sent.")
                     .WithStyle(EmbedStyle.Success)
                     .Build();
 
-                await this.Context.Channel.SendMessageAsync(embed: success);
+                await ReplyAsync(embed: success);
             }
             catch
             {
@@ -158,26 +158,8 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await this.Context.Channel.SendMessageAsync(embed: error);
+                await ReplyAsync(embed: error);
             }
-        }
-
-        /// <summary>
-        /// The command used to toggle on or off the ability to send requests.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        [Command("togglerequests")]
-        [RequireOwner]
-        public async Task ToggleRequests()
-        {
-            CommandHandler.Requests = !CommandHandler.Requests;
-            var success = new CWEEmbedBuilder()
-                    .WithTitle((CommandHandler.Requests ? "Enabled" : "Disabled") + " requests")
-                    .WithDescription($"Successfully {(CommandHandler.Requests ? "enabled" : "disabled")} requests.")
-                    .WithStyle(EmbedStyle.Success)
-                    .Build();
-
-            await this.Context.Channel.SendMessageAsync(embed: success);
         }
     }
 }

@@ -10,7 +10,6 @@
     /// <summary>
     /// Custom implementation of <see cref="ModuleBase"/>, containing extra's for CWE.
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1401:Fields should be private", Justification = "Fields used via inheritance.")]
     public abstract class CWEModuleBase : ModuleBase<SocketCommandContext>
     {
         /// <summary>
@@ -38,11 +37,11 @@
         /// <param name="interactivityService">The <see cref="InteractivityService"/> to be injected.</param>
         protected CWEModuleBase(IServiceProvider serviceProvider, IConfiguration configuration, InteractivityService interactivityService)
         {
-            this.scope = serviceProvider.CreateScope();
-            this.DataAccessLayer = this.scope.ServiceProvider.GetRequiredService<DataAccessLayer>();
+            scope = serviceProvider.CreateScope();
+            DataAccessLayer = scope.ServiceProvider.GetRequiredService<DataAccessLayer>();
 
-            this.Configuration = configuration;
-            this.Interactivity = interactivityService;
+            Configuration = configuration;
+            Interactivity = interactivityService;
         }
     }
 }

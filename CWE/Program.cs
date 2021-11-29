@@ -16,6 +16,7 @@
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
+    using Serilog;
 
     /// <summary>
     /// Entry point of the CWE bot.
@@ -24,7 +25,13 @@
     {
         private static async Task Main()
         {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .WriteTo.Console()
+                .CreateLogger();
+
             var builder = new HostBuilder()
+                .UseSerilog()
                 .ConfigureAppConfiguration(x =>
                 {
                     var configuration = new ConfigurationBuilder()
@@ -34,16 +41,11 @@
 
                     x.AddConfiguration(configuration);
                 })
-                .ConfigureLogging(x =>
-                {
-                    x.AddConsole();
-                    x.SetMinimumLevel(LogLevel.Debug);
-                })
                 .ConfigureDiscordHost((context, config) =>
                 {
                     config.SocketConfig = new DiscordSocketConfig
                     {
-                        LogLevel = LogSeverity.Verbose,
+                        LogLevel = LogSeverity.Info,
                         AlwaysDownloadUsers = true,
                         MessageCacheSize = 200,
                         GatewayIntents = GatewayIntents.All,
@@ -61,14 +63,17 @@
                 {
                     services
                     .AddHostedService<CommandHandler>()
+                    .AddHostedService<InteractionsHandler>()
+                    .AddHostedService<TagHandler>()
+                    .AddHostedService<AutoRolesHandler>()
+                    .AddHostedService<StatusHandler>()
                     .AddSingleton<InteractivityService>()
                     .AddSingleton(new InteractivityConfig { DefaultTimeout = TimeSpan.FromSeconds(20) })
-                    .AddDbContext<CWEDbContext>(x =>
+                    .AddDbContextFactory<CWEDbContext>(x =>
                         x.UseMySql(
                             context.Configuration["Database"],
                             new MySqlServerVersion(new Version(8, 0, 23))))
-                    .AddSingleton<DataAccessLayer>()
-                    .AddSingleton<HandlerService>();
+                    .AddSingleton<DataAccessLayer>();
                 })
                 .UseConsoleLifetime();
 

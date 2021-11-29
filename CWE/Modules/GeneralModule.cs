@@ -2,7 +2,6 @@
 {
     using System;
     using System.Threading.Tasks;
-    using CWE.Common;
     using Discord.Commands;
     using Interactivity;
     using Microsoft.Extensions.Configuration;
@@ -30,7 +29,7 @@
         [Command("ping")]
         public async Task Ping()
         {
-            await this.ReplyAsync($"Pong! 🏓 `{this.Context.Client.Latency}ms`");
+            await ReplyAsync($"Pong! 🏓 `{Context.Client.Latency}ms`");
         }
     }
 }

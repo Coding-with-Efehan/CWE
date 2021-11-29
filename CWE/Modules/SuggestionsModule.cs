@@ -37,7 +37,7 @@
         public async Task Suggest([Remainder] string argument)
         {
             var arguments = argument.Split(" ");
-            var socketGuildUser = this.Context.User as SocketGuildUser;
+            var socketGuildUser = Context.User as SocketGuildUser;
             var suggestionsChannel = Context.Guild.GetTextChannel(Configuration.GetSection("Channels").GetValue<ulong>("Suggestions"));
 
             switch (arguments[0])
@@ -45,23 +45,23 @@
                 case "create":
                     string suggestion = string.Join(" ", arguments.Skip(1));
                     var embed = new EmbedBuilder()
-                        .AddField("Initiator", this.Context.User.GetUsernameAndTag() + $" ({this.Context.User.Id})", true)
+                        .AddField("Initiator", Context.User.GetUsernameAndTag() + $" ({Context.User.Id})", true)
                         .AddField("Suggestion", suggestion)
-                        .WithFooter($"ID: ... | {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}")
-                        .WithThumbnailUrl(this.Context.User.GetAvatarUrl() ?? this.Context.User.GetDefaultAvatarUrl())
+                        .WithFooter($"ID: ... | {DateTime.Now:MM/dd/yyyy hh:mm tt}")
+                        .WithThumbnailUrl(Context.User.GetAvatarUrl() ?? Context.User.GetDefaultAvatarUrl())
                         .WithColor(new Color(87, 105, 233))
                         .Build();
 
-                    var suggestions = this.Context.Guild.GetTextChannel(this.Configuration.GetSection("Channels").GetValue<ulong>("Suggestions"));
+                    var suggestions = Context.Guild.GetTextChannel(Configuration.GetSection("Channels").GetValue<ulong>("Suggestions"));
                     var message = await suggestions.SendMessageAsync(embed: embed);
                     await message.AddReactionsAsync(new IEmote[] { new Emoji("✅"), new Emoji("❌") });
 
-                    var suggestionId = await this.DataAccessLayer.CreateSuggestion(this.Context.User.Id, message.Id);
+                    var suggestionId = await DataAccessLayer.CreateSuggestion(Context.User.Id, message.Id);
                     embed = new EmbedBuilder()
-                        .AddField("Initiator", this.Context.User.GetUsernameAndTag() + $" ({this.Context.User.Id})", true)
+                        .AddField("Initiator", Context.User.GetUsernameAndTag() + $" ({Context.User.Id})", true)
                         .AddField("Suggestion", suggestion)
-                        .WithFooter($"ID: {suggestionId} | {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}")
-                        .WithThumbnailUrl(this.Context.User.GetAvatarUrl() ?? this.Context.User.GetDefaultAvatarUrl())
+                        .WithFooter($"ID: {suggestionId} | {DateTime.Now:MM/dd/yyyy hh:mm tt}")
+                        .WithThumbnailUrl(Context.User.GetAvatarUrl() ?? Context.User.GetDefaultAvatarUrl())
                         .WithColor(new Color(87, 105, 233))
                         .Build();
 
@@ -73,10 +73,10 @@
                         .WithStyle(EmbedStyle.Success)
                         .Build();
 
-                    await this.Context.Channel.SendMessageAsync(embed: success);
+                    await ReplyAsync(embed: success);
                     break;
                 case "edit":
-                    if (arguments.Count() < 3)
+                    if (arguments.Length < 3)
                     {
                         var invalidArgumentsEmbed = new CWEEmbedBuilder()
                             .WithTitle("Invalid arguments")
@@ -84,7 +84,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await this.Context.Channel.SendMessageAsync(embed: invalidArgumentsEmbed);
+                        await ReplyAsync(embed: invalidArgumentsEmbed);
                         return;
                     }
 
@@ -96,7 +96,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await this.Context.Channel.SendMessageAsync(embed: invalidArgumentTypeEmbed);
+                        await ReplyAsync(embed: invalidArgumentTypeEmbed);
                         return;
                     }
 
@@ -109,7 +109,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await this.Context.Channel.SendMessageAsync(embed: notFoundEmbed);
+                        await ReplyAsync(embed: notFoundEmbed);
                         return;
                     }
 
@@ -121,7 +121,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await this.Context.Channel.SendMessageAsync(embed: accessDeniedEmbed);
+                        await ReplyAsync(embed: accessDeniedEmbed);
                         return;
                     }
 
@@ -133,7 +133,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await this.Context.Channel.SendMessageAsync(embed: accessDeniedEmbed);
+                        await ReplyAsync(embed: accessDeniedEmbed);
                         return;
                     }
 
@@ -155,10 +155,10 @@
                         .WithStyle(EmbedStyle.Success)
                         .Build();
 
-                    await Context.Channel.SendMessageAsync(embed: editSuccess);
+                    await ReplyAsync(embed: editSuccess);
                     break;
                 case "delete":
-                    if (arguments.Count() != 2)
+                    if (arguments.Length != 2)
                     {
                         var noIdProvidedEmbed = new CWEEmbedBuilder()
                             .WithTitle("No ID provided")
@@ -166,7 +166,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await this.Context.Channel.SendMessageAsync(embed: noIdProvidedEmbed);
+                        await ReplyAsync(embed: noIdProvidedEmbed);
                         return;
                     }
 
@@ -178,7 +178,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await this.Context.Channel.SendMessageAsync(embed: invalidArgumentTypeEmbed);
+                        await ReplyAsync(embed: invalidArgumentTypeEmbed);
                         return;
                     }
 
@@ -191,7 +191,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await this.Context.Channel.SendMessageAsync(embed: notFoundEmbed);
+                        await ReplyAsync(embed: notFoundEmbed);
                         return;
                     }
 
@@ -203,7 +203,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await this.Context.Channel.SendMessageAsync(embed: accessDeniedEmbed);
+                        await ReplyAsync(embed: accessDeniedEmbed);
                         return;
                     }
 
@@ -215,7 +215,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await this.Context.Channel.SendMessageAsync(embed: accessDeniedEmbed);
+                        await ReplyAsync(embed: accessDeniedEmbed);
                         return;
                     }
 
@@ -228,7 +228,7 @@
                         .WithStyle(EmbedStyle.Success)
                         .Build();
 
-                    await Context.Channel.SendMessageAsync(embed: deleteSuccess);
+                    await ReplyAsync(embed: deleteSuccess);
                     break;
             }
         }
@@ -243,7 +243,7 @@
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task Approve(int suggestionId, [Remainder] string response = null)
         {
-            var suggestion = await this.DataAccessLayer.GetSuggestion(suggestionId);
+            var suggestion = await DataAccessLayer.GetSuggestion(suggestionId);
             if (suggestion == null)
             {
                 var notFound = new CWEEmbedBuilder()
@@ -252,7 +252,7 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await this.Context.Channel.SendMessageAsync(embed: notFound);
+                await ReplyAsync(embed: notFound);
                 return;
             }
 
@@ -264,11 +264,11 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await this.Context.Channel.SendMessageAsync(embed: alreadyReviewed);
+                await ReplyAsync(embed: alreadyReviewed);
                 return;
             }
 
-            var suggestions = this.Context.Client.GetGuild(this.Configuration.GetValue<ulong>("Guild")).GetTextChannel(this.Configuration.GetSection("Channels").GetValue<ulong>("Suggestions"));
+            var suggestions = Context.Client.GetGuild(Configuration.GetValue<ulong>("Guild")).GetTextChannel(Configuration.GetSection("Channels").GetValue<ulong>("Suggestions"));
             var message = await suggestions.GetMessageAsync(suggestion.MessageId) as IUserMessage;
 
             var upvotes = message.Reactions.FirstOrDefault(x => x.Key.Name == "✅").Value.ReactionCount - 1;
@@ -277,14 +277,14 @@
             var embed = message.Embeds.FirstOrDefault()
                 .ToEmbedBuilder()
                 .WithColor(Colors.Success)
-                .AddField("Approved by", this.Context.User.Mention, true)
+                .AddField("Approved by", Context.User.Mention, true)
                 .AddField("Results", $"✅ : {upvotes}\n❌ : {downvotes}", true)
                 .AddField("Response", response ?? "N/A")
                 .Build();
 
             await message.ModifyAsync(x => x.Embed = embed);
             await message.RemoveAllReactionsAsync();
-            await this.DataAccessLayer.UpdateSuggestion(suggestionId, SuggestionState.Approved);
+            await DataAccessLayer.UpdateSuggestion(suggestionId, SuggestionState.Approved);
 
             var success = new CWEEmbedBuilder()
                 .WithTitle("Suggestion approved")
@@ -292,7 +292,7 @@
                 .WithStyle(EmbedStyle.Success)
                 .Build();
 
-            await this.Context.Channel.SendMessageAsync(embed: success);
+            await ReplyAsync(embed: success);
         }
 
         /// <summary>
@@ -305,7 +305,7 @@
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task Reject(int suggestionId, [Remainder] string response = null)
         {
-            var suggestion = await this.DataAccessLayer.GetSuggestion(suggestionId);
+            var suggestion = await DataAccessLayer.GetSuggestion(suggestionId);
             if (suggestion == null)
             {
                 var notFound = new CWEEmbedBuilder()
@@ -314,7 +314,7 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await this.Context.Channel.SendMessageAsync(embed: notFound);
+                await ReplyAsync(embed: notFound);
                 return;
             }
 
@@ -326,11 +326,11 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await this.Context.Channel.SendMessageAsync(embed: alreadyReviewed);
+                await ReplyAsync(embed: alreadyReviewed);
                 return;
             }
 
-            var suggestions = this.Context.Client.GetGuild(this.Configuration.GetValue<ulong>("Guild")).GetTextChannel(this.Configuration.GetSection("Channels").GetValue<ulong>("Suggestions"));
+            var suggestions = Context.Client.GetGuild(Configuration.GetValue<ulong>("Guild")).GetTextChannel(Configuration.GetSection("Channels").GetValue<ulong>("Suggestions"));
             var message = await suggestions.GetMessageAsync(suggestion.MessageId) as IUserMessage;
 
             var upvotes = message.Reactions.FirstOrDefault(x => x.Key.Name == "✅").Value.ReactionCount - 1;
@@ -339,14 +339,14 @@
             var embed = message.Embeds.FirstOrDefault()
                 .ToEmbedBuilder()
                 .WithColor(Colors.Error)
-                .AddField("Rejected by", this.Context.User.Mention, true)
+                .AddField("Rejected by", Context.User.Mention, true)
                 .AddField("Results", $"✅ : {upvotes}\n❌ : {downvotes}", true)
                 .AddField("Response", response ?? "N/A")
                 .Build();
 
             await message.ModifyAsync(x => x.Embed = embed);
             await message.RemoveAllReactionsAsync();
-            await this.DataAccessLayer.UpdateSuggestion(suggestionId, SuggestionState.Rejected);
+            await DataAccessLayer.UpdateSuggestion(suggestionId, SuggestionState.Rejected);
 
             var success = new CWEEmbedBuilder()
                 .WithTitle("Suggestion rejected")
@@ -354,7 +354,7 @@
                 .WithStyle(EmbedStyle.Success)
                 .Build();
 
-            await this.Context.Channel.SendMessageAsync(embed: success);
+            await ReplyAsync(embed: success);
         }
     }
 }
