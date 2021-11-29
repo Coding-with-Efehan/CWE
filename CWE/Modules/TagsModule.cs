@@ -55,7 +55,7 @@
             var list = new CWEEmbedBuilder()
                     .WithTitle($"Tags ({tags.Count()})")
                     .WithDescription(description)
-                    .WithFooter($"Use $tagName to view it.")
+                    .WithFooter($"Use $name to view it.")
                     .WithStyle(EmbedStyle.Information)
                     .Build();
 
