@@ -47,7 +47,7 @@
                     var embed = new EmbedBuilder()
                         .AddField("Initiator", Context.User.GetUsernameAndTag() + $" ({Context.User.Id})", true)
                         .AddField("Suggestion", suggestion)
-                        .WithFooter($"ID: ... | {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}")
+                        .WithFooter($"ID: ... | {DateTime.Now:MM/dd/yyyy hh:mm tt}")
                         .WithThumbnailUrl(Context.User.GetAvatarUrl() ?? Context.User.GetDefaultAvatarUrl())
                         .WithColor(new Color(87, 105, 233))
                         .Build();
@@ -60,7 +60,7 @@
                     embed = new EmbedBuilder()
                         .AddField("Initiator", Context.User.GetUsernameAndTag() + $" ({Context.User.Id})", true)
                         .AddField("Suggestion", suggestion)
-                        .WithFooter($"ID: {suggestionId} | {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}")
+                        .WithFooter($"ID: {suggestionId} | {DateTime.Now:MM/dd/yyyy hh:mm tt}")
                         .WithThumbnailUrl(Context.User.GetAvatarUrl() ?? Context.User.GetDefaultAvatarUrl())
                         .WithColor(new Color(87, 105, 233))
                         .Build();
@@ -76,7 +76,7 @@
                     await Context.Channel.SendMessageAsync(embed: success);
                     break;
                 case "edit":
-                    if (arguments.Count() < 3)
+                    if (arguments.Length < 3)
                     {
                         var invalidArgumentsEmbed = new CWEEmbedBuilder()
                             .WithTitle("Invalid arguments")
@@ -158,7 +158,7 @@
                     await Context.Channel.SendMessageAsync(embed: editSuccess);
                     break;
                 case "delete":
-                    if (arguments.Count() != 2)
+                    if (arguments.Length != 2)
                     {
                         var noIdProvidedEmbed = new CWEEmbedBuilder()
                             .WithTitle("No ID provided")

@@ -64,7 +64,7 @@
 
         private async Task OnMessageReceived(SocketMessage incomingMessage)
         {
-            if (!(incomingMessage is SocketUserMessage message))
+            if (incomingMessage is not SocketUserMessage message)
             {
                 return;
             }

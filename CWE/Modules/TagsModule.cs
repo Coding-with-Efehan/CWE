@@ -36,7 +36,7 @@
         {
             var tags = await DataAccessLayer.GetTags();
 
-            if (tags.Count() == 0)
+            if (!tags.Any())
             {
                 var noTags = new CWEEmbedBuilder()
                     .WithTitle("No tags found")
@@ -71,7 +71,7 @@
         {
             var arguments = argument.Split(" ");
 
-            if (arguments.Count() == 1 && arguments[0] != "create" && arguments[0] != "edit" && arguments[0] != "transfer" && arguments[0] != "delete")
+            if (arguments.Length == 1 && arguments[0] != "create" && arguments[0] != "edit" && arguments[0] != "transfer" && arguments[0] != "delete")
             {
                 var tag = await DataAccessLayer.GetTag(arguments[0]);
                 if (tag == null)

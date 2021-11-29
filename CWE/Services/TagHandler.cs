@@ -31,16 +31,17 @@
         }
 
         /// <inheritdoc/>
-        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(CancellationToken cancellationToken)
         {
             Client.MessageReceived += OnMessageReceived;
+            return Task.CompletedTask;
         }
 
         private Task OnMessageReceived(SocketMessage incomingMessage)
         {
             Task.Run(async () =>
             {
-                if (!(incomingMessage is SocketUserMessage message))
+                if (incomingMessage is not SocketUserMessage message)
                 {
                     return;
                 }

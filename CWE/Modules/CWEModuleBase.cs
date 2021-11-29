@@ -10,7 +10,6 @@
     /// <summary>
     /// Custom implementation of <see cref="ModuleBase"/>, containing extra's for CWE.
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1401:Fields should be private", Justification = "Fields used via inheritance.")]
     public abstract class CWEModuleBase : ModuleBase<SocketCommandContext>
     {
         /// <summary>

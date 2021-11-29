@@ -51,7 +51,7 @@
                 roles.Add(role);
             }
 
-            if (roles.Count() == 0)
+            if (roles.Count == 0)
             {
                 var noRanks = new CWEEmbedBuilder()
                     .WithTitle("No auto-roles found")
@@ -66,7 +66,7 @@
             string description = string.Join("\n", roles.Select(x => x.Name));
 
             var list = new CWEEmbedBuilder()
-                    .WithTitle($"Auto-roles ({roles.Count()})")
+                    .WithTitle($"Auto-roles ({roles.Count})")
                     .WithDescription(description)
                     .WithStyle(EmbedStyle.Information)
                     .Build();

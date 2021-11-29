@@ -51,7 +51,7 @@
                 roles.Add(role);
             }
 
-            if (roles.Count() == 0)
+            if (roles.Count == 0)
             {
                 var noRanks = new CWEEmbedBuilder()
                     .WithTitle("No ranks found")
@@ -66,7 +66,7 @@
             string description = string.Join("\n", roles.Select(x => x.Name));
 
             var list = new CWEEmbedBuilder()
-                    .WithTitle($"Ranks ({roles.Count()})")
+                    .WithTitle($"Ranks ({roles.Count})")
                     .WithDescription(description)
                     .WithFooter($"Use \"{Configuration.GetValue<string>("Prefix")}r name\" to join a rank")
                     .WithStyle(EmbedStyle.Information)
@@ -102,7 +102,7 @@
             var arguments = argument.Split(" ");
 
             var rank = roles.FirstOrDefault(x => x.Name.ToLower() == arguments[0].ToLower());
-            if (arguments.Count() == 1 && arguments[0] != "add" && arguments[0] != "delete")
+            if (arguments.Length == 1 && arguments[0] != "add" && arguments[0] != "delete")
             {
                 if (rank == null)
                 {
