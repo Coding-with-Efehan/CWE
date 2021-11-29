@@ -2,6 +2,8 @@
 {
     using System;
     using System.IO;
+    using System.Linq;
+    using System.Reflection;
     using System.Threading.Tasks;
     using CWE.Data;
     using CWE.Data.Context;
@@ -16,6 +18,7 @@
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
+    using Serilog;
 
     /// <summary>
     /// Entry point of the CWE bot.
@@ -24,7 +27,13 @@
     {
         private static async Task Main()
         {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .WriteTo.Console()
+                .CreateLogger();
+
             var builder = new HostBuilder()
+                .UseSerilog()
                 .ConfigureAppConfiguration(x =>
                 {
                     var configuration = new ConfigurationBuilder()
@@ -34,16 +43,11 @@
 
                     x.AddConfiguration(configuration);
                 })
-                .ConfigureLogging(x =>
-                {
-                    x.AddConsole();
-                    x.SetMinimumLevel(LogLevel.Debug);
-                })
                 .ConfigureDiscordHost((context, config) =>
                 {
                     config.SocketConfig = new DiscordSocketConfig
                     {
-                        LogLevel = LogSeverity.Verbose,
+                        LogLevel = LogSeverity.Info,
                         AlwaysDownloadUsers = true,
                         MessageCacheSize = 200,
                         GatewayIntents = GatewayIntents.All,
@@ -61,6 +65,10 @@
                 {
                     services
                     .AddHostedService<CommandHandler>()
+                    .AddHostedService<InteractionsHandler>()
+                    .AddHostedService<TagHandler>()
+                    .AddHostedService<AutoRolesHandler>()
+                    .AddHostedService<StatusHandler>()
                     .AddSingleton<InteractivityService>()
                     .AddSingleton(new InteractivityConfig { DefaultTimeout = TimeSpan.FromSeconds(20) })
                     .AddDbContextFactory<CWEDbContext>(x =>
