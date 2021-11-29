@@ -105,7 +105,7 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await Context.Channel.SendMessageAsync(embed: error);
+                await ReplyAsync(embed: error);
                 return;
             }
 
@@ -118,7 +118,7 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await Context.Channel.SendMessageAsync(embed: error);
+                await ReplyAsync(embed: error);
                 return;
             }
 
@@ -147,7 +147,7 @@
                     .WithStyle(EmbedStyle.Success)
                     .Build();
 
-                await Context.Channel.SendMessageAsync(embed: success);
+                await ReplyAsync(embed: success);
             }
             catch
             {
@@ -158,7 +158,7 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await Context.Channel.SendMessageAsync(embed: error);
+                await ReplyAsync(embed: error);
             }
         }
     }

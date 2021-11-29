@@ -58,7 +58,7 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await Context.Channel.SendMessageAsync(embed: noRanks);
+                await ReplyAsync(embed: noRanks);
                 return;
             }
 
@@ -71,7 +71,7 @@
                     .WithStyle(EmbedStyle.Information)
                     .Build();
 
-            await Context.Channel.SendMessageAsync(embed: list);
+            await ReplyAsync(embed: list);
         }
 
         /// <summary>
@@ -111,7 +111,7 @@
                         .WithStyle(EmbedStyle.Error)
                         .Build();
 
-                    await Context.Channel.SendMessageAsync(embed: embed);
+                    await ReplyAsync(embed: embed);
                     return;
                 }
 
@@ -131,7 +131,7 @@
                     .WithStyle(EmbedStyle.Success)
                     .Build();
 
-                await Context.Channel.SendMessageAsync(embed: success);
+                await ReplyAsync(embed: success);
                 return;
             }
 
@@ -144,7 +144,7 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await Context.Channel.SendMessageAsync(embed: embed);
+                await ReplyAsync(embed: embed);
                 return;
             }
 
@@ -159,7 +159,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: embed);
+                        await ReplyAsync(embed: embed);
                         return;
                     }
 
@@ -171,7 +171,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: embed);
+                        await ReplyAsync(embed: embed);
                         return;
                     }
 
@@ -182,7 +182,7 @@
                             .WithStyle(EmbedStyle.Success)
                             .Build();
 
-                    await Context.Channel.SendMessageAsync(embed: created);
+                    await ReplyAsync(embed: created);
                     break;
                 case "delete":
                     if (ranks.All(x => x.Id != role.Id))
@@ -193,7 +193,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: embed);
+                        await ReplyAsync(embed: embed);
                         return;
                     }
 
@@ -205,7 +205,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: embed);
+                        await ReplyAsync(embed: embed);
                         return;
                     }
 
@@ -216,7 +216,7 @@
                             .WithStyle(EmbedStyle.Success)
                             .Build();
 
-                    await Context.Channel.SendMessageAsync(embed: deleted);
+                    await ReplyAsync(embed: deleted);
                     break;
             }
         }

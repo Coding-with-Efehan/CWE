@@ -73,7 +73,7 @@
                         .WithStyle(EmbedStyle.Success)
                         .Build();
 
-                    await Context.Channel.SendMessageAsync(embed: success);
+                    await ReplyAsync(embed: success);
                     break;
                 case "edit":
                     if (arguments.Length < 3)
@@ -84,7 +84,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: invalidArgumentsEmbed);
+                        await ReplyAsync(embed: invalidArgumentsEmbed);
                         return;
                     }
 
@@ -96,7 +96,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: invalidArgumentTypeEmbed);
+                        await ReplyAsync(embed: invalidArgumentTypeEmbed);
                         return;
                     }
 
@@ -109,7 +109,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: notFoundEmbed);
+                        await ReplyAsync(embed: notFoundEmbed);
                         return;
                     }
 
@@ -121,7 +121,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: accessDeniedEmbed);
+                        await ReplyAsync(embed: accessDeniedEmbed);
                         return;
                     }
 
@@ -133,7 +133,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: accessDeniedEmbed);
+                        await ReplyAsync(embed: accessDeniedEmbed);
                         return;
                     }
 
@@ -155,7 +155,7 @@
                         .WithStyle(EmbedStyle.Success)
                         .Build();
 
-                    await Context.Channel.SendMessageAsync(embed: editSuccess);
+                    await ReplyAsync(embed: editSuccess);
                     break;
                 case "delete":
                     if (arguments.Length != 2)
@@ -166,7 +166,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: noIdProvidedEmbed);
+                        await ReplyAsync(embed: noIdProvidedEmbed);
                         return;
                     }
 
@@ -178,7 +178,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: invalidArgumentTypeEmbed);
+                        await ReplyAsync(embed: invalidArgumentTypeEmbed);
                         return;
                     }
 
@@ -191,7 +191,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: notFoundEmbed);
+                        await ReplyAsync(embed: notFoundEmbed);
                         return;
                     }
 
@@ -203,7 +203,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: accessDeniedEmbed);
+                        await ReplyAsync(embed: accessDeniedEmbed);
                         return;
                     }
 
@@ -215,7 +215,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: accessDeniedEmbed);
+                        await ReplyAsync(embed: accessDeniedEmbed);
                         return;
                     }
 
@@ -228,7 +228,7 @@
                         .WithStyle(EmbedStyle.Success)
                         .Build();
 
-                    await Context.Channel.SendMessageAsync(embed: deleteSuccess);
+                    await ReplyAsync(embed: deleteSuccess);
                     break;
             }
         }
@@ -252,7 +252,7 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await Context.Channel.SendMessageAsync(embed: notFound);
+                await ReplyAsync(embed: notFound);
                 return;
             }
 
@@ -264,7 +264,7 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await Context.Channel.SendMessageAsync(embed: alreadyReviewed);
+                await ReplyAsync(embed: alreadyReviewed);
                 return;
             }
 
@@ -292,7 +292,7 @@
                 .WithStyle(EmbedStyle.Success)
                 .Build();
 
-            await Context.Channel.SendMessageAsync(embed: success);
+            await ReplyAsync(embed: success);
         }
 
         /// <summary>
@@ -314,7 +314,7 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await Context.Channel.SendMessageAsync(embed: notFound);
+                await ReplyAsync(embed: notFound);
                 return;
             }
 
@@ -326,7 +326,7 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await Context.Channel.SendMessageAsync(embed: alreadyReviewed);
+                await ReplyAsync(embed: alreadyReviewed);
                 return;
             }
 
@@ -354,7 +354,7 @@
                 .WithStyle(EmbedStyle.Success)
                 .Build();
 
-            await Context.Channel.SendMessageAsync(embed: success);
+            await ReplyAsync(embed: success);
         }
     }
 }

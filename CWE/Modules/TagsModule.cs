@@ -44,7 +44,7 @@
                     .WithStyle(EmbedStyle.Error)
                     .Build();
 
-                await Context.Channel.SendMessageAsync(embed: noTags);
+                await ReplyAsync(embed: noTags);
                 return;
             }
 
@@ -57,7 +57,7 @@
                     .WithStyle(EmbedStyle.Information)
                     .Build();
 
-            await Context.Channel.SendMessageAsync(embed: list);
+            await ReplyAsync(embed: list);
         }
 
         /// <summary>
@@ -82,11 +82,11 @@
                         .WithStyle(EmbedStyle.Error)
                         .Build();
 
-                    await Context.Channel.SendMessageAsync(embed: embed);
+                    await ReplyAsync(embed: embed);
                     return;
                 }
 
-                await Context.Channel.SendMessageAsync(tag.Content);
+                await ReplyAsync(tag.Content);
                 return;
             }
 
@@ -104,7 +104,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: embed);
+                        await ReplyAsync(embed: embed);
                         return;
                     }
 
@@ -116,7 +116,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: embed);
+                        await ReplyAsync(embed: embed);
                         return;
                     }
 
@@ -127,7 +127,7 @@
                             .WithStyle(EmbedStyle.Success)
                             .Build();
 
-                    await Context.Channel.SendMessageAsync(embed: created);
+                    await ReplyAsync(embed: created);
                     break;
                 case "edit":
                     var foundTag = await DataAccessLayer.GetTag(arguments[1]);
@@ -139,7 +139,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: embed);
+                        await ReplyAsync(embed: embed);
                         return;
                     }
 
@@ -151,7 +151,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: embed);
+                        await ReplyAsync(embed: embed);
                         return;
                     }
 
@@ -162,7 +162,7 @@
                             .WithStyle(EmbedStyle.Success)
                             .Build();
 
-                    await Context.Channel.SendMessageAsync(embed: edited);
+                    await ReplyAsync(embed: edited);
                     break;
                 case "transfer":
                     var tagToTransfer = await DataAccessLayer.GetTag(arguments[1]);
@@ -174,7 +174,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: embed);
+                        await ReplyAsync(embed: embed);
                         return;
                     }
 
@@ -186,7 +186,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: embed);
+                        await ReplyAsync(embed: embed);
                         return;
                     }
 
@@ -198,7 +198,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: embed);
+                        await ReplyAsync(embed: embed);
                         return;
                     }
 
@@ -209,7 +209,7 @@
                             .WithStyle(EmbedStyle.Success)
                             .Build();
 
-                    await Context.Channel.SendMessageAsync(embed: success);
+                    await ReplyAsync(embed: success);
                     break;
                 case "delete":
                     var tagToDelete = await DataAccessLayer.GetTag(arguments[1]);
@@ -221,7 +221,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: embed);
+                        await ReplyAsync(embed: embed);
                         return;
                     }
 
@@ -233,7 +233,7 @@
                             .WithStyle(EmbedStyle.Error)
                             .Build();
 
-                        await Context.Channel.SendMessageAsync(embed: embed);
+                        await ReplyAsync(embed: embed);
                         return;
                     }
 
@@ -244,7 +244,7 @@
                             .WithStyle(EmbedStyle.Success)
                             .Build();
 
-                    await Context.Channel.SendMessageAsync(embed: deleted);
+                    await ReplyAsync(embed: deleted);
                     break;
             }
         }
